@@ -1,0 +1,409 @@
+{
+  "schemaVersion": "1.0",
+  "id": "fernhill-provisions",
+  "title": "Fernhill Provisions",
+  "eyebrow": "WALL PATTERN · ORDER TO CASH",
+  "display": {
+    "layout": "orbit",
+    "theme": "dark",
+    "canvas": {
+      "width": 1920,
+      "height": 1080
+    },
+    "refresh": {
+      "mode": "live",
+      "options": [
+        5,
+        10,
+        20
+      ],
+      "staleAfterMinutes": 15
+    },
+    "delta": {
+      "baseline": "lastUpdate",
+      "shiftStart": "07:00",
+      "fadeSeconds": 14
+    },
+    "motion": {
+      "pulseOnChange": true,
+      "flowDots": true,
+      "respectReducedMotion": true
+    },
+    "layoutPinned": false
+  },
+  "states": [
+    {
+      "id": "calm",
+      "label": "Calm",
+      "color": "#6E7C8C"
+    },
+    {
+      "id": "watch",
+      "label": "Watch",
+      "color": "#F2C14E"
+    },
+    {
+      "id": "act",
+      "label": "Act",
+      "color": "#FF6A4D",
+      "glow": true
+    }
+  ],
+  "loops": [
+    {
+      "id": "loop1",
+      "name": "Order to cash",
+      "color": "#34475C",
+      "lineStyle": "solid"
+    },
+    {
+      "id": "loop2",
+      "name": "Backorders → Orders",
+      "color": "#4F86B5",
+      "lineStyle": "dashed"
+    }
+  ],
+  "steps": [
+    {
+      "id": "orders",
+      "order": 1,
+      "name": "Orders",
+      "subtitle": "New & confirmed orders",
+      "loop": "loop1",
+      "hero": {
+        "id": "o_new",
+        "label": "New orders today",
+        "goodDirection": "up",
+        "cumulative": true
+      },
+      "indicators": [
+        {
+          "id": "o_pend",
+          "label": "Awaiting confirmation",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 25,
+            "act": 40
+          }
+        },
+        {
+          "id": "o_credit",
+          "label": "Credit hold",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 5,
+            "act": 9
+          }
+        },
+        {
+          "id": "o_req",
+          "label": "Required this week",
+          "goodDirection": "neutral"
+        }
+      ],
+      "compactIndicators": [
+        "o_pend",
+        "o_credit"
+      ],
+      "age": {
+        "label": "Oldest unconfirmed",
+        "targetHours": 24
+      },
+      "position": {
+        "x": 500,
+        "y": 410
+      }
+    },
+    {
+      "id": "stock",
+      "order": 2,
+      "name": "Inventory",
+      "subtitle": "Stock vs reorder levels",
+      "loop": "loop1",
+      "hero": {
+        "id": "s_low",
+        "label": "Products below reorder level",
+        "caption": "of 240",
+        "goodDirection": "down",
+        "thresholds": {
+          "watch": 12,
+          "act": 20
+        }
+      },
+      "indicators": [
+        {
+          "id": "s_out",
+          "label": "Out of stock",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        },
+        {
+          "id": "s_po",
+          "label": "Purchase orders open",
+          "goodDirection": "neutral"
+        },
+        {
+          "id": "s_disc",
+          "label": "Discontinued on order",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 1,
+            "act": 3
+          }
+        }
+      ],
+      "compactIndicators": [
+        "s_out",
+        "s_po"
+      ],
+      "age": {
+        "label": "Oldest open PO",
+        "targetHours": 168
+      },
+      "position": {
+        "x": 960,
+        "y": 290
+      }
+    },
+    {
+      "id": "pick",
+      "order": 3,
+      "name": "Fulfilment",
+      "subtitle": "Picking & packing",
+      "loop": "loop1",
+      "hero": {
+        "id": "f_lines",
+        "label": "Order lines to pick",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "f_short",
+          "label": "Short picks",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 4,
+            "act": 8
+          }
+        },
+        {
+          "id": "f_packed",
+          "label": "Orders packed today",
+          "goodDirection": "up",
+          "cumulative": true
+        },
+        {
+          "id": "f_backord",
+          "label": "Lines backordered",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 10,
+            "act": 18
+          }
+        }
+      ],
+      "compactIndicators": [
+        "f_short",
+        "f_packed"
+      ],
+      "age": {
+        "label": "Oldest unpicked",
+        "targetHours": 8
+      },
+      "position": {
+        "x": 1420,
+        "y": 410
+      }
+    },
+    {
+      "id": "ship",
+      "order": 4,
+      "name": "Shipping",
+      "subtitle": "Ridgeway · Kestrel · Coastline",
+      "loop": "loop1",
+      "hero": {
+        "id": "sh_ready",
+        "label": "Ready to ship",
+        "goodDirection": "down",
+        "thresholds": {
+          "watch": 40,
+          "act": 60
+        }
+      },
+      "indicators": [
+        {
+          "id": "sh_done",
+          "label": "Shipped today",
+          "goodDirection": "up",
+          "cumulative": true
+        },
+        {
+          "id": "sh_late",
+          "label": "Past required date",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 5,
+            "act": 10
+          }
+        },
+        {
+          "id": "sh_held",
+          "label": "Held at dock",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "compactIndicators": [
+        "sh_done",
+        "sh_late"
+      ],
+      "age": {
+        "label": "Oldest at dock",
+        "targetHours": 24
+      },
+      "position": {
+        "x": 1250,
+        "y": 820
+      }
+    },
+    {
+      "id": "bill",
+      "order": 5,
+      "name": "Invoicing",
+      "subtitle": "Invoices & payments",
+      "loop": "loop1",
+      "hero": {
+        "id": "b_open",
+        "label": "Unpaid invoices",
+        "goodDirection": "down",
+        "thresholds": {
+          "watch": 70,
+          "act": 95
+        }
+      },
+      "indicators": [
+        {
+          "id": "b_sent",
+          "label": "Invoiced today",
+          "goodDirection": "up",
+          "cumulative": true
+        },
+        {
+          "id": "b_over",
+          "label": "Overdue > 30 days",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 8,
+            "act": 15
+          }
+        },
+        {
+          "id": "b_disp",
+          "label": "Disputed",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "compactIndicators": [
+        "b_sent",
+        "b_over"
+      ],
+      "age": {
+        "label": "Oldest unpaid",
+        "targetHours": 720
+      },
+      "position": {
+        "x": 670,
+        "y": 820
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "id": "c1",
+      "from": "orders",
+      "to": "stock",
+      "caption": "allocated",
+      "loop": "loop1",
+      "stallWhen": {
+        "step": "stock",
+        "stateAtLeast": "act"
+      },
+      "stallCaption": "short"
+    },
+    {
+      "id": "c2",
+      "from": "stock",
+      "to": "pick",
+      "caption": "released",
+      "loop": "loop1"
+    },
+    {
+      "id": "c3",
+      "from": "pick",
+      "to": "ship",
+      "caption": "packed",
+      "loop": "loop1",
+      "stallWhen": {
+        "step": "pick",
+        "stateAtLeast": "act"
+      },
+      "stallCaption": "slow"
+    },
+    {
+      "id": "c4",
+      "from": "ship",
+      "to": "bill",
+      "caption": "invoiced",
+      "loop": "loop1"
+    },
+    {
+      "id": "c5",
+      "from": "ship",
+      "to": "orders",
+      "caption": "backordered lines re-released",
+      "loop": "loop2",
+      "route": "outside"
+    }
+  ],
+  "exceptions": {
+    "enabled": true,
+    "title": "Exceptions",
+    "placement": "hub",
+    "types": [
+      {
+        "id": "ops",
+        "label": "Operations",
+        "shortLabel": "Ops"
+      },
+      {
+        "id": "sys",
+        "label": "Systems",
+        "shortLabel": "Sys"
+      },
+      {
+        "id": "cus",
+        "label": "Customer",
+        "shortLabel": "Cust"
+      }
+    ],
+    "thresholds": {
+      "watch": 15,
+      "act": 25
+    },
+    "showOnSteps": true
+  },
+  "changeLog": {
+    "enabled": true,
+    "maxItems": 6
+  }
+}

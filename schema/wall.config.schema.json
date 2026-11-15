@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/semanticintent/wall-pattern/main/schema/wall.config.schema.json",
+  "title": "WALL Pattern — wall configuration",
+  "description": "Describes the structure of a process wall: its steps, indicators, thresholds, connectors, loops and exceptions. Changes rarely. Live numbers come from a separate feed (wall.feed.schema.json).",
+  "type": "object",
+  "required": ["schemaVersion", "id", "title", "steps", "connectors"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "$ref": "#/$defs/id", "description": "Unique wall id. Feeds reference it as wallId." },
+    "title": { "type": "string", "examples": ["Fernhill Provisions"] },
+    "eyebrow": { "type": "string", "description": "Small label above the title.", "default": "WALL PATTERN · PROCESS FLOW" },
+
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "layout": { "enum": ["row", "orbit", "free"], "default": "row", "description": "row = blocks in a line; orbit = ring with exceptions hub; free = positions taken from each step's position." },
+        "theme": { "enum": ["dark", "light"], "default": "dark" },
+        "canvas": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "width": { "type": "integer", "minimum": 640, "default": 1920 },
+            "height": { "type": "integer", "minimum": 360, "default": 1080 }
+          }
+        },
+        "refresh": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": { "enum": ["live", "interval"], "default": "live" },
+            "intervalMinutes": { "type": "number", "exclusiveMinimum": 0, "default": 5 },
+            "options": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 }, "default": [5, 10, 20], "description": "Interval choices offered on the toggle, in minutes." },
+            "staleAfterMinutes": { "type": "number", "exclusiveMinimum": 0, "description": "If no feed arrives within this time, the heartbeat turns grey and shows 'stale'." }
+          }
+        },
+        "delta": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "baseline": { "enum": ["lastUpdate", "shiftStart"], "default": "lastUpdate" },
+            "shiftStart": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$", "default": "07:00", "description": "Local time the shift baseline resets." },
+            "fadeSeconds": { "type": "number", "minimum": 0, "default": 14 }
+          }
+        },
+        "motion": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pulseOnChange": { "type": "boolean", "default": true },
+            "flowDots": { "type": "boolean", "default": true, "description": "Dots moving along connectors (orbit/free layouts)." },
+            "respectReducedMotion": { "type": "boolean", "default": true }
+          }
+        },
+        "layoutPinned": { "type": "boolean", "default": false, "description": "When true, viewers cannot drag blocks." }
+      }
+    },
+
+    "states": {
+      "type": "array",
+      "description": "Ordered severity levels, mildest first. Defaults to calm / watch / act.",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "color"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "label": { "type": "string" },
+          "color": { "$ref": "#/$defs/color" },
+          "glow": { "type": "boolean", "default": false }
+        }
+      },
+      "default": [
+        { "id": "calm", "label": "Calm", "color": "#6E7C8C" },
+        { "id": "watch", "label": "Watch", "color": "#F2C14E" },
+        { "id": "act", "label": "Act", "color": "#FF6A4D", "glow": true }
+      ]
+    },
+
+    "loops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "color": { "$ref": "#/$defs/color" },
+          "lineStyle": { "enum": ["solid", "dashed", "dotted"], "default": "solid" }
+        }
+      }
+    },
+
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+
+    "connectors": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/connector" }
+    },
+
+    "exceptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "title": { "type": "string", "default": "Exceptions" },
+        "placement": { "enum": ["panel", "hub", "satellites"], "default": "panel" },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "label": { "type": "string" },
+              "shortLabel": { "type": "string" }
+            }
+          }
+        },
+        "thresholds": { "$ref": "#/$defs/thresholds", "description": "Applied to the total open count." },
+        "showOnSteps": { "type": "boolean", "default": true, "description": "Show a per-step exception badge (and spoke in orbit layout)." }
+      }
+    },
+
+    "changeLog": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "maxItems": { "type": "integer", "minimum": 1, "default": 6 }
+      }
+    }
+  },
+
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
+    "color": { "type": "string", "pattern": "^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$" },
+
+    "thresholds": {
+      "type": "object",
+      "description": "Value at which each non-calm state starts. Keys are state ids. With direction 'above', reaching the value or going over it triggers; with 'below', reaching it or going under it triggers.",
+      "additionalProperties": false,
+      "properties": {
+        "direction": { "enum": ["above", "below"], "default": "above" },
+        "watch": { "type": "number" },
+        "act": { "type": "number" }
+      }
+    },
+
+    "indicator": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id", "description": "Key used in the feed's values map. Unique across the wall." },
+        "label": { "type": "string" },
+        "caption": { "type": "string", "description": "Small line under a hero number, e.g. 'of 1,302'." },
+        "format": { "enum": ["integer", "decimal", "percent", "currency", "duration"], "default": "integer" },
+        "unit": { "type": "string", "description": "Currency code or unit suffix, e.g. 'CAD', 'h'." },
+        "goodDirection": { "enum": ["up", "down", "neutral"], "default": "neutral", "description": "Which way is better. Decides delta colour: better = blue, worse = orange." },
+        "cumulative": { "type": "boolean", "default": false, "description": "Counter that only grows during a shift (e.g. completed today)." },
+        "thresholds": { "$ref": "#/$defs/thresholds" }
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["id", "name", "hero"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "order": { "type": "integer", "minimum": 1, "description": "Display number (01, 02 …). Defaults to array position." },
+        "name": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "loop": { "$ref": "#/$defs/id", "description": "Loop this step mainly belongs to." },
+        "hero": { "$ref": "#/$defs/indicator" },
+        "indicators": { "type": "array", "maxItems": 4, "items": { "$ref": "#/$defs/indicator" } },
+        "compactIndicators": { "type": "array", "items": { "$ref": "#/$defs/id" }, "maxItems": 2, "description": "Which indicator ids to keep in compact (orbit) cards." },
+        "age": {
+          "type": "object",
+          "description": "Age of the oldest item at this step. The feed supplies oldestHours.",
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Oldest" },
+            "targetHours": { "type": "number", "minimum": 0 }
+          }
+        },
+        "position": {
+          "type": "object",
+          "description": "Pinned centre point in canvas px (free / orbit layouts).",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+        },
+        "drillUrl": { "type": "string", "format": "uri-reference", "description": "Where a click drills to, in interactive use." }
+      }
+    },
+
+    "connector": {
+      "type": "object",
+      "required": ["id", "from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id", "description": "Key used in the feed's flows map." },
+        "from": { "$ref": "#/$defs/id", "description": "Step id." },
+        "to": { "$ref": "#/$defs/id", "description": "Step id." },
+        "caption": { "type": "string", "examples": ["triggered", "opened", "closed"] },
+        "loop": { "$ref": "#/$defs/id" },
+        "route": { "enum": ["direct", "outside"], "default": "direct", "description": "outside = sweeps around the other blocks (used for return loops)." },
+        "showFlow": { "type": "boolean", "default": true },
+        "stallWhen": {
+          "type": "object",
+          "description": "Turn the connector amber when this holds.",
+          "additionalProperties": false,
+          "properties": {
+            "step": { "$ref": "#/$defs/id" },
+            "stateAtLeast": { "$ref": "#/$defs/id" },
+            "flowBelow": { "type": "number", "description": "Or: when flow since last update is below this." }
+          }
+        },
+        "stallCaption": { "type": "string", "default": "slow" }
+      }
+    }
+  }
+}

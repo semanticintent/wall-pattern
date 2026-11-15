@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "1.0",
+  "wallId": "fernhill-provisions",
+  "generatedAt": "2026-11-14T13:53:56-05:00",
+  "sequence": 412,
+  "values": {
+    "o_new": 38,
+    "o_pend": 22,
+    "o_credit": 4,
+    "o_req": 61,
+    "s_low": 14,
+    "s_out": 2,
+    "s_po": 9,
+    "s_disc": 1,
+    "f_lines": 146,
+    "f_short": 5,
+    "f_packed": 31,
+    "f_backord": 12,
+    "sh_ready": 34,
+    "sh_done": 27,
+    "sh_late": 6,
+    "sh_held": 1,
+    "b_open": 82,
+    "b_sent": 24,
+    "b_over": 9,
+    "b_disp": 2
+  },
+  "baseline": {
+    "at": "2026-11-14T07:00:00-05:00",
+    "values": {
+      "o_new": 0,
+      "o_pend": 25,
+      "o_credit": 4,
+      "o_req": 61,
+      "s_low": 13,
+      "s_out": 2,
+      "s_po": 9,
+      "s_disc": 1,
+      "f_lines": 152,
+      "f_short": 5,
+      "f_packed": 0,
+      "f_backord": 12,
+      "sh_ready": 31,
+      "sh_done": 0,
+      "sh_late": 4,
+      "sh_held": 1,
+      "b_open": 79,
+      "b_sent": 0,
+      "b_over": 9,
+      "b_disp": 2
+    }
+  },
+  "ages": {
+    "orders": {
+      "oldestHours": 30
+    },
+    "stock": {
+      "oldestHours": 190
+    },
+    "pick": {
+      "oldestHours": 6
+    },
+    "ship": {
+      "oldestHours": 20
+    },
+    "bill": {
+      "oldestHours": 1010
+    }
+  },
+  "flows": {
+    "c1": {
+      "sinceLastUpdate": 2,
+      "sinceShiftStart": 41
+    },
+    "c2": {
+      "sinceLastUpdate": 3,
+      "sinceShiftStart": 37
+    },
+    "c3": {
+      "sinceLastUpdate": 1,
+      "sinceShiftStart": 31
+    },
+    "c4": {
+      "sinceLastUpdate": 0,
+      "sinceShiftStart": 24
+    },
+    "c5": {
+      "sinceLastUpdate": 1,
+      "sinceShiftStart": 9
+    }
+  },
+  "exceptions": [
+    {
+      "id": "NW-3107",
+      "type": "ops",
+      "step": "stock",
+      "text": "Supplier late — Alder Creek Dairy, PO 4412"
+    },
+    {
+      "id": "NW-3104",
+      "type": "sys",
+      "step": "ship",
+      "text": "Tracking sync failed — Coastline Freight"
+    },
+    {
+      "id": "NW-3101",
+      "type": "cus",
+      "step": "orders",
+      "text": "Credit limit exceeded — Customer C-1042"
+    },
+    {
+      "id": "NW-3098",
+      "type": "ops",
+      "step": "pick",
+      "text": "Short pick — Rye flour 25 kg, bin A-12"
+    },
+    {
+      "id": "NW-3095",
+      "type": "ops",
+      "step": "orders",
+      "text": "Address check failed — Order 50418"
+    },
+    {
+      "id": "NW-3092",
+      "type": "cus",
+      "step": "bill",
+      "text": "Invoice disputed — Customer C-2217"
+    },
+    {
+      "id": "NW-3090",
+      "type": "ops",
+      "step": "stock",
+      "text": "Discontinued product on order — Order 50472"
+    },
+    {
+      "id": "NW-3087",
+      "type": "sys",
+      "step": "pick",
+      "text": "Label printer offline — Dock 2"
+    },
+    {
+      "id": "NW-3083",
+      "type": "ops",
+      "step": "ship",
+      "text": "Missed pickup — Ridgeway Couriers"
+    },
+    {
+      "id": "NW-3080",
+      "type": "ops",
+      "step": "pick",
+      "text": "Damaged stock — Maple syrup, 6 cases"
+    },
+    {
+      "id": "NW-3077",
+      "type": "cus",
+      "step": "ship",
+      "text": "Delivery refused — Customer C-3380"
+    },
+    {
+      "id": "NW-3074",
+      "type": "ops",
+      "step": "stock",
+      "text": "Reorder level breached — Aged cheddar 5 kg"
+    }
+  ],
+  "messages": [
+    {
+      "text": "Bayside Growers shipment received — 14 products restocked",
+      "step": "stock",
+      "tone": "better"
+    }
+  ]
+}

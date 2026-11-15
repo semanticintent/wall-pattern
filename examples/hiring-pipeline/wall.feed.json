@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0",
+  "wallId": "hiring",
+  "generatedAt": "2026-11-14T10:00:00-05:00",
+  "sequence": 1,
+  "values": {
+    "src_n": 50,
+    "src_old": 0,
+    "scr_n": 33,
+    "scr_old": 2,
+    "int_n": 81,
+    "int_old": 4,
+    "off_n": 31,
+    "off_old": 0
+  },
+  "baseline": {
+    "at": "2026-11-14T07:00:00-05:00",
+    "values": {
+      "src_n": 50,
+      "src_old": 0,
+      "scr_n": 33,
+      "scr_old": 2,
+      "int_n": 81,
+      "int_old": 4,
+      "off_n": 31,
+      "off_old": 0
+    }
+  },
+  "ages": {
+    "src": {
+      "oldestHours": 12
+    },
+    "scr": {
+      "oldestHours": 61
+    },
+    "int": {
+      "oldestHours": 80
+    },
+    "off": {
+      "oldestHours": 47
+    }
+  },
+  "flows": {
+    "k1": {
+      "sinceLastUpdate": 0,
+      "sinceShiftStart": 28
+    },
+    "k2": {
+      "sinceLastUpdate": 0,
+      "sinceShiftStart": 27
+    },
+    "k3": {
+      "sinceLastUpdate": 0,
+      "sinceShiftStart": 4
+    },
+    "k4": {
+      "sinceLastUpdate": 0,
+      "sinceShiftStart": 10
+    }
+  },
+  "exceptions": [
+    {
+      "id": "H-1",
+      "type": "ops",
+      "step": "int",
+      "text": "Panel not booked — Role 114"
+    },
+    {
+      "id": "H-2",
+      "type": "sys",
+      "step": "src",
+      "text": "Job-board sync failed"
+    }
+  ]
+}

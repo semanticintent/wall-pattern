@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/semanticintent/wall-pattern/main/schema/wall.feed.schema.json",
+  "title": "WALL Pattern — live feed",
+  "description": "One snapshot of live values for a wall. The source system sends a new snapshot on every update (push, poll or file drop). The wall works out deltas by comparing it with the previous snapshot and with the shift baseline.",
+  "type": "object",
+  "required": ["schemaVersion", "wallId", "generatedAt", "values"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "wallId": { "type": "string", "description": "Must match the config's id." },
+    "generatedAt": { "type": "string", "format": "date-time", "description": "When the source produced this snapshot. Drives the 'updated' time and stale detection." },
+    "sequence": { "type": "integer", "minimum": 0, "description": "Increments by one each snapshot. Lets the wall spot gaps or out-of-order arrivals." },
+
+    "values": {
+      "type": "object",
+      "description": "Current value of every indicator, keyed by indicator id from the config.",
+      "additionalProperties": { "type": ["number", "null"] },
+      "minProperties": 1
+    },
+
+    "baseline": {
+      "type": "object",
+      "description": "Optional. Values at shift start, so 'Δ since shift start' survives a wall restart. If missing, the wall uses the first snapshot it saw after shiftStart.",
+      "required": ["at", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "values": { "type": "object", "additionalProperties": { "type": ["number", "null"] } }
+      }
+    },
+
+    "ages": {
+      "type": "object",
+      "description": "Age of the oldest item per step, keyed by step id.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["oldestHours"],
+        "additionalProperties": false,
+        "properties": { "oldestHours": { "type": "number", "minimum": 0 } }
+      }
+    },
+
+    "flows": {
+      "type": "object",
+      "description": "Items that moved along each connector, keyed by connector id.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sinceLastUpdate": { "type": "integer", "minimum": 0 },
+          "sinceShiftStart": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+
+    "exceptions": {
+      "type": "array",
+      "description": "All currently open exceptions. Ones missing since the previous snapshot are treated as resolved.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "step", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable id, so the wall can tell new from resolved." },
+          "type": { "type": "string", "description": "Exception type id from the config." },
+          "step": { "type": "string", "description": "Step id where it sits." },
+          "text": { "type": "string" },
+          "openedAt": { "type": "string", "format": "date-time" },
+          "ref": { "type": "string", "description": "Record reference, e.g. unit or work order number." },
+          "link": { "type": "string", "format": "uri-reference" }
+        }
+      }
+    },
+
+    "messages": {
+      "type": "array",
+      "description": "Optional extra lines for the 'What changed' panel that numbers alone can't express.",
+      "items": {
+        "type": "object",
+        "required": ["text"],
+        "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string" },
+          "step": { "type": "string" },
+          "tone": { "enum": ["better", "worse", "neutral"], "default": "neutral" }
+        }
+      }
+    }
+  }
+}

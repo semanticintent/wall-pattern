@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "1.0",
+  "id": "hiring",
+  "title": "Hiring Pipeline",
+  "display": {
+    "layout": "row",
+    "theme": "light"
+  },
+  "steps": [
+    {
+      "id": "src",
+      "name": "Sourced",
+      "hero": {
+        "id": "src_n",
+        "label": "In stage",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "src_old",
+          "label": "Older than 48h",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "age": {
+        "targetHours": 72
+      }
+    },
+    {
+      "id": "scr",
+      "name": "Screened",
+      "hero": {
+        "id": "scr_n",
+        "label": "In stage",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "scr_old",
+          "label": "Older than 48h",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "age": {
+        "targetHours": 72
+      }
+    },
+    {
+      "id": "int",
+      "name": "Interview",
+      "hero": {
+        "id": "int_n",
+        "label": "In stage",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "int_old",
+          "label": "Older than 48h",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "age": {
+        "targetHours": 72
+      }
+    },
+    {
+      "id": "off",
+      "name": "Offer",
+      "hero": {
+        "id": "off_n",
+        "label": "In stage",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "off_old",
+          "label": "Older than 48h",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "age": {
+        "targetHours": 72
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "id": "k1",
+      "from": "src",
+      "to": "scr",
+      "caption": "advanced",
+      "loop": "main"
+    },
+    {
+      "id": "k2",
+      "from": "scr",
+      "to": "int",
+      "caption": "advanced",
+      "loop": "main"
+    },
+    {
+      "id": "k3",
+      "from": "int",
+      "to": "off",
+      "caption": "advanced",
+      "loop": "main"
+    },
+    {
+      "id": "k4",
+      "from": "off",
+      "to": "src",
+      "caption": "reopened",
+      "route": "outside",
+      "loop": "reopen"
+    }
+  ],
+  "exceptions": {
+    "enabled": true,
+    "placement": "panel",
+    "types": [
+      {
+        "id": "ops",
+        "label": "Operations",
+        "shortLabel": "Ops"
+      },
+      {
+        "id": "sys",
+        "label": "Systems",
+        "shortLabel": "Sys"
+      }
+    ],
+    "thresholds": {
+      "watch": 8,
+      "act": 14
+    }
+  },
+  "eyebrow": "WALL PATTERN · PROCESS FLOW",
+  "loops": [
+    {
+      "id": "main",
+      "name": "Hiring pipeline"
+    },
+    {
+      "id": "reopen",
+      "name": "Reopened roles",
+      "color": "#4F86B5",
+      "lineStyle": "dashed"
+    }
+  ]
+}

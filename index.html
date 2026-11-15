@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALL Pattern</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0E13;--surface:#111821;--surface2:#16202B;--line:#223040;--btnline:#2B3B4D;
+  --text:#E9EEF3;--strong:#F4F7FA;--muted:#93A1B2;--soft:#B8C4D1;--faint:#6E7C8C;
+  --accent:#63B3FF;--onaccent:#0A0E13;--better:#7CC4FF;--betterbg:rgba(99,179,255,.14);
+  --worse:#FFA66B;--worsebg:rgba(255,155,87,.15);--neutralbg:rgba(184,196,209,.10);
+  --conn:#34475C;--chev:#5D7894;--loop:#4F86B5;--spoke:#FF8A5C;--exfg:#FFB8A6;--exbg:rgba(255,106,77,.14);
+  --flash:rgba(99,179,255,.30);--fade:14s;
+  --f-head:'Space Grotesk',system-ui,sans-serif;--f-body:Inter,system-ui,sans-serif;--f-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+.light{
+  --bg:#F3F6F9;--surface:#FFFFFF;--surface2:#EEF2F6;--line:#D5DDE6;--btnline:#C3CEDA;
+  --text:#18222D;--strong:#0B121A;--muted:#5B6B7C;--soft:#3C4A59;--faint:#8796A6;
+  --accent:#1F6FD1;--onaccent:#FFFFFF;--better:#1A64C2;--betterbg:rgba(31,111,209,.12);
+  --worse:#B4510A;--worsebg:rgba(194,87,12,.12);--neutralbg:rgba(60,74,89,.08);
+  --conn:#A9B7C6;--chev:#7D8FA3;--loop:#3B78B0;--spoke:#E06A3A;--exfg:#A8391C;--exbg:rgba(224,106,58,.12);
+  --flash:rgba(31,111,209,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
+body{font-family:var(--f-body);color:var(--text)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;transform-origin:center center;background:var(--bg);overflow:hidden;flex:none}
+button{font-family:var(--f-body)}
+.abs{position:absolute}
+/* header */
+.hdr-l{position:absolute;left:64px;top:40px;display:flex;flex-direction:column;gap:8px;z-index:20}
+.eyebrow{font-family:var(--f-mono);font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--better)}
+h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weight:600;letter-spacing:-.01em;color:var(--strong)}
+.hdr-r{position:absolute;right:64px;top:32px;display:flex;flex-direction:column;align-items:flex-end;gap:12px;z-index:20}
+.hrow{display:flex;align-items:center;gap:14px}
+.status{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);margin-right:6px}
+.status b{color:var(--text);font-weight:600}
+.status .t{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.status .src{font-size:12px;color:var(--muted);padding:3px 8px;border:1px solid var(--line);border-radius:999px}
+.beat{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--betterbg);animation:beat 1.6s ease-in-out infinite}
+.beat.off{background:var(--faint);box-shadow:none;animation:none}
+.beat.err{background:#FF6A4D;box-shadow:0 0 0 4px rgba(255,106,77,.2)}
+.btn{height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--btnline);background:var(--surface2);color:var(--text);font-weight:600;font-size:14px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--onaccent);border:none}
+.btn.ghost{background:transparent;color:var(--soft);font-size:13px;padding:0 16px}
+.btn:focus-visible,.pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grp{display:flex;align-items:center;gap:10px}
+.glabel{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pills{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px}
+.pill{height:36px;padding:0 14px;border-radius:999px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:transparent;color:var(--soft)}
+.pill[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.kiosk .hdr-r .hide-k{display:none}
+.progress{position:absolute;left:64px;right:64px;top:146px;height:3px;border-radius:3px;background:var(--surface2);overflow:hidden;z-index:20}
+.progress i{display:block;height:3px;width:0;background:var(--accent)}
+.looplabel{position:absolute;left:64px;top:162px;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--muted)}
+/* cards */
+.card{position:absolute;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;touch-action:none;user-select:none;transition:transform .12s,box-shadow .3s,border-color .3s}
+.card.row{padding:22px;gap:14px}
+.card.compact{padding:18px;gap:9px;border-radius:18px}
+.card.drag{cursor:grab}.card.dragging{cursor:grabbing;transform:scale(1.03);z-index:15}
+.c-top{display:flex;justify-content:space-between;align-items:center;height:24px}
+.c-num{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;color:var(--muted)}
+.c-right{display:flex;align-items:center;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.compact .chip{font-size:11px;padding:3px 9px}
+.chip i{width:6px;height:6px;border-radius:50%}
+.chip.pulse i{animation:beat 1.6s ease-in-out infinite}
+.c-name{font-family:var(--f-head);font-size:22px;line-height:28px;font-weight:600;color:var(--text)}
+.compact .c-name{font-size:20px;line-height:24px}
+.c-sub{font-size:13px;color:var(--muted);margin-top:-10px}
+.hero{display:flex;flex-direction:column;gap:2px;padding:6px 8px;margin:0 -8px;border-radius:10px}
+.compact .hero{padding:2px 8px}
+.hval-row{display:flex;align-items:center;gap:10px}
+.hval{font-family:var(--f-head);font-size:48px;line-height:56px;font-weight:600;color:var(--strong);font-variant-numeric:tabular-nums}
+.compact .hval{font-size:38px;line-height:44px}
+.hcap{font-size:13px;color:var(--muted)}
+.compact .hcap{font-size:12px}
+.sep{height:1px;background:var(--line)}
+.rows{display:flex;flex-direction:column;gap:2px}
+.r{display:flex;align-items:center;justify-content:space-between;height:30px;padding:0 8px;margin:0 -8px;border-radius:8px}
+.compact .r{height:26px}
+.r .l{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--soft)}
+.compact .r .l{font-size:13px}
+.r .v{display:flex;align-items:center;gap:8px}
+.r .n{font-family:var(--f-head);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;min-width:32px;text-align:right;color:var(--text)}
+.compact .r .n{font-size:16px}
+.tdot{width:8px;height:8px;border-radius:50%;flex:none}
+.tdot.p{animation:beat 1.6s ease-in-out infinite}
+.c-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.compact .c-foot{flex-direction:row;justify-content:space-between}
+.age.over{color:var(--worse)}
+.exb{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--exfg);background:var(--exbg)}
+.exb.none{color:var(--muted);background:var(--surface2)}
+.exb.mini{height:22px;padding:0 8px;font-size:11px}
+.flash{animation:flash 2s ease-out 1}
+.delta{display:inline-flex;align-items:center;flex:none;font-family:var(--f-mono);font-weight:600;line-height:18px;border-radius:999px;font-size:13px;padding:2px 7px}
+.delta.big{font-size:15px;padding:3px 9px}
+.delta.better{color:var(--better);background:var(--betterbg)}
+.delta.worse{color:var(--worse);background:var(--worsebg)}
+.delta.neutral{color:var(--soft);background:var(--neutralbg)}
+.delta.fresh{animation:fade var(--fade) ease-out forwards}
+.delta.stale{opacity:.7}
+/* connectors */
+#lines{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+#lines path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.chev{position:absolute;width:16px;height:16px;display:flex;color:var(--chev);pointer-events:none}
+.chev.stall{color:#F2C14E}
+.flow{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+.flow .cnt{font-family:var(--f-head);font-size:17px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text)}
+.flow .cnt.zero{color:var(--faint)}
+.flow .cnt.fresh{display:inline-block;animation:fade var(--fade) ease-out forwards}
+.flow .cap{font-size:12px;color:var(--muted)}
+.flow.stall .cnt,.flow.stall .cap{color:#F6D27A;font-weight:600}
+.flow.loop .cap{max-width:260px}
+.flow.loop .ln{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--loop);text-transform:uppercase}
+/* hub */
+.halo{position:absolute;width:360px;height:360px;border-radius:50%;border:1px dashed var(--line);pointer-events:none;animation:halo 120s linear infinite}
+.hub{position:absolute;width:248px;height:248px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--surface);border:1px solid var(--line);touch-action:none;user-select:none;z-index:12;transition:box-shadow .3s,border-color .3s}
+.hub .ttl{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.hub .tot{display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:12px}
+.hub .tot b{font-family:var(--f-head);font-size:60px;line-height:68px;font-weight:600;color:var(--strong);font-variant-numeric:tabular-nums}
+.hub .types{display:flex;gap:12px;margin-top:6px;font-size:12px;color:var(--soft)}
+.hub .types b{color:var(--strong)}
+/* panels */
+.panel{position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column}
+.p-title{font-family:var(--f-head);font-size:22px;font-weight:600;color:var(--text)}
+.p-sub{font-size:13px;color:var(--muted)}
+.ex-grid{display:grid;gap:16px}
+.ex-tile{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface2);border-radius:12px;min-width:0}
+.ex-tile .nm{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ex-tile .ct{display:flex;align-items:center;gap:10px}
+.ex-tile .ct b{font-family:var(--f-head);font-size:40px;line-height:46px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--strong)}
+.ex-tile .lt{font-size:13px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.where span.s{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:999px;background:var(--surface2);font-size:13px;color:var(--soft)}
+.where span.s b{color:var(--strong)}
+.log{display:flex;flex-direction:column;gap:2px}
+.log .e{display:flex;align-items:center;gap:12px;height:32px;padding:0 8px;margin:0 -8px;border-radius:8px}
+.log .tm{font-family:var(--f-mono);font-size:12px;color:var(--muted);flex:none;width:68px}
+.log .tx{flex:1;min-width:0;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log .empty{font-size:14px;color:var(--muted);padding:12px 0}
+.footer{position:absolute;left:64px;display:flex;align-items:center;gap:18px;font-size:13px;color:var(--muted)}
+.footer .sw{display:inline-flex;align-items:center;gap:6px}
+.footer .sw i{width:8px;height:8px;border-radius:50%}
+.footer .bar{color:var(--faint)}
+/* drawer */
+#drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:100vw;background:var(--surface);border-left:1px solid var(--line);z-index:100;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;gap:20px;padding:28px;overflow:auto;color:var(--text)}
+#drawer.open{transform:none;box-shadow:-24px 0 60px rgba(0,0,0,.35)}
+#drawer h2{margin:0;font-family:var(--f-head);font-size:24px}
+#drawer h3{margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#drawer p,#drawer li{font-size:14px;line-height:21px;color:var(--soft);margin:0}
+#drawer .sec{display:flex;flex-direction:column;gap:10px}
+#drawer label{font-size:13px;color:var(--soft);display:flex;flex-direction:column;gap:6px}
+#drawer input[type=url],#drawer input[type=number]{height:40px;border-radius:10px;border:1px solid var(--btnline);background:var(--bg);color:var(--text);padding:0 12px;font:14px var(--f-body)}
+#drawer .row2{display:flex;gap:8px;flex-wrap:wrap}
+#drawer code{font-family:var(--f-mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:6px;word-break:break-all}
+#drawer .btn{height:40px;font-size:13px;padding:0 16px}
+.filebtn{position:relative;overflow:hidden;display:inline-flex;align-items:center}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--btnline);color:var(--text);padding:12px 18px;border-radius:12px;font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;max-width:80vw}
+#toast.show{opacity:1}
+#toast.err{border-color:#FF6A4D}
+#dropzone{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(10,14,19,.8);color:#E9EEF3;font:600 24px var(--f-head);border:3px dashed var(--accent)}
+#dropzone.on{display:flex}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@keyframes flash{0%{background-color:var(--flash)}100%{background-color:transparent}}
+@keyframes fade{0%{opacity:1;transform:scale(1.18)}8%{transform:scale(1)}70%{opacity:1}100%{opacity:.5}}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes halo{to{transform:rotate(360deg)}}
+@keyframes prog{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion: reduce){.rm *{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage" aria-live="off"></div></div>
+<aside id="drawer" aria-label="Wall settings" aria-hidden="true"></aside>
+<div id="toast" role="status"></div>
+<div id="dropzone">Drop a wall config or feed (.json)</div>
+<script>
+const DEFAULT_CONFIG = {"schemaVersion": "1.0", "id": "fernhill-provisions", "title": "Fernhill Provisions", "eyebrow": "WALL PATTERN · ORDER TO CASH", "display": {"layout": "orbit", "theme": "dark", "canvas": {"width": 1920, "height": 1080}, "refresh": {"mode": "live", "options": [5, 10, 20], "staleAfterMinutes": 15}, "delta": {"baseline": "lastUpdate", "shiftStart": "07:00", "fadeSeconds": 14}, "motion": {"pulseOnChange": true, "flowDots": true, "respectReducedMotion": true}, "layoutPinned": false}, "states": [{"id": "calm", "label": "Calm", "color": "#6E7C8C"}, {"id": "watch", "label": "Watch", "color": "#F2C14E"}, {"id": "act", "label": "Act", "color": "#FF6A4D", "glow": true}], "loops": [{"id": "loop1", "name": "Order to cash", "color": "#34475C", "lineStyle": "solid"}, {"id": "loop2", "name": "Backorders → Orders", "color": "#4F86B5", "lineStyle": "dashed"}], "steps": [{"id": "orders", "order": 1, "name": "Orders", "subtitle": "New & confirmed orders", "loop": "loop1", "hero": {"id": "o_new", "label": "New orders today", "goodDirection": "up", "cumulative": true}, "indicators": [{"id": "o_pend", "label": "Awaiting confirmation", "goodDirection": "down", "thresholds": {"watch": 25, "act": 40}}, {"id": "o_credit", "label": "Credit hold", "goodDirection": "down", "thresholds": {"watch": 5, "act": 9}}, {"id": "o_req", "label": "Required this week", "goodDirection": "neutral"}], "compactIndicators": ["o_pend", "o_credit"], "age": {"label": "Oldest unconfirmed", "targetHours": 24}, "position": {"x": 500, "y": 410}}, {"id": "stock", "order": 2, "name": "Inventory", "subtitle": "Stock vs reorder levels", "loop": "loop1", "hero": {"id": "s_low", "label": "Products below reorder level", "caption": "of 240", "goodDirection": "down", "thresholds": {"watch": 12, "act": 20}}, "indicators": [{"id": "s_out", "label": "Out of stock", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}, {"id": "s_po", "label": "Purchase orders open", "goodDirection": "neutral"}, {"id": "s_disc", "label": "Discontinued on order", "goodDirection": "down", "thresholds": {"watch": 1, "act": 3}}], "compactIndicators": ["s_out", "s_po"], "age": {"label": "Oldest open PO", "targetHours": 168}, "position": {"x": 960, "y": 290}}, {"id": "pick", "order": 3, "name": "Fulfilment", "subtitle": "Picking & packing", "loop": "loop1", "hero": {"id": "f_lines", "label": "Order lines to pick", "goodDirection": "neutral"}, "indicators": [{"id": "f_short", "label": "Short picks", "goodDirection": "down", "thresholds": {"watch": 4, "act": 8}}, {"id": "f_packed", "label": "Orders packed today", "goodDirection": "up", "cumulative": true}, {"id": "f_backord", "label": "Lines backordered", "goodDirection": "down", "thresholds": {"watch": 10, "act": 18}}], "compactIndicators": ["f_short", "f_packed"], "age": {"label": "Oldest unpicked", "targetHours": 8}, "position": {"x": 1420, "y": 410}}, {"id": "ship", "order": 4, "name": "Shipping", "subtitle": "Ridgeway · Kestrel · Coastline", "loop": "loop1", "hero": {"id": "sh_ready", "label": "Ready to ship", "goodDirection": "down", "thresholds": {"watch": 40, "act": 60}}, "indicators": [{"id": "sh_done", "label": "Shipped today", "goodDirection": "up", "cumulative": true}, {"id": "sh_late", "label": "Past required date", "goodDirection": "down", "thresholds": {"watch": 5, "act": 10}}, {"id": "sh_held", "label": "Held at dock", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}], "compactIndicators": ["sh_done", "sh_late"], "age": {"label": "Oldest at dock", "targetHours": 24}, "position": {"x": 1250, "y": 820}}, {"id": "bill", "order": 5, "name": "Invoicing", "subtitle": "Invoices & payments", "loop": "loop1", "hero": {"id": "b_open", "label": "Unpaid invoices", "goodDirection": "down", "thresholds": {"watch": 70, "act": 95}}, "indicators": [{"id": "b_sent", "label": "Invoiced today", "goodDirection": "up", "cumulative": true}, {"id": "b_over", "label": "Overdue > 30 days", "goodDirection": "down", "thresholds": {"watch": 8, "act": 15}}, {"id": "b_disp", "label": "Disputed", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}], "compactIndicators": ["b_sent", "b_over"], "age": {"label": "Oldest unpaid", "targetHours": 720}, "position": {"x": 670, "y": 820}}], "connectors": [{"id": "c1", "from": "orders", "to": "stock", "caption": "allocated", "loop": "loop1", "stallWhen": {"step": "stock", "stateAtLeast": "act"}, "stallCaption": "short"}, {"id": "c2", "from": "stock", "to": "pick", "caption": "released", "loop": "loop1"}, {"id": "c3", "from": "pick", "to": "ship", "caption": "packed", "loop": "loop1", "stallWhen": {"step": "pick", "stateAtLeast": "act"}, "stallCaption": "slow"}, {"id": "c4", "from": "ship", "to": "bill", "caption": "invoiced", "loop": "loop1"}, {"id": "c5", "from": "ship", "to": "orders", "caption": "backordered lines re-released", "loop": "loop2", "route": "outside"}], "exceptions": {"enabled": true, "title": "Exceptions", "placement": "hub", "types": [{"id": "ops", "label": "Operations", "shortLabel": "Ops"}, {"id": "sys", "label": "Systems", "shortLabel": "Sys"}, {"id": "cus", "label": "Customer", "shortLabel": "Cust"}], "thresholds": {"watch": 15, "act": 25}, "showOnSteps": true}, "changeLog": {"enabled": true, "maxItems": 6}};
+const DEFAULT_FEED = {"schemaVersion": "1.0", "wallId": "fernhill-provisions", "generatedAt": "2026-11-14T13:53:56-05:00", "sequence": 412, "values": {"o_new": 38, "o_pend": 22, "o_credit": 4, "o_req": 61, "s_low": 14, "s_out": 2, "s_po": 9, "s_disc": 1, "f_lines": 146, "f_short": 5, "f_packed": 31, "f_backord": 12, "sh_ready": 34, "sh_done": 27, "sh_late": 6, "sh_held": 1, "b_open": 82, "b_sent": 24, "b_over": 9, "b_disp": 2}, "baseline": {"at": "2026-11-14T07:00:00-05:00", "values": {"o_new": 0, "o_pend": 25, "o_credit": 4, "o_req": 61, "s_low": 13, "s_out": 2, "s_po": 9, "s_disc": 1, "f_lines": 152, "f_short": 5, "f_packed": 0, "f_backord": 12, "sh_ready": 31, "sh_done": 0, "sh_late": 4, "sh_held": 1, "b_open": 79, "b_sent": 0, "b_over": 9, "b_disp": 2}}, "ages": {"orders": {"oldestHours": 30}, "stock": {"oldestHours": 190}, "pick": {"oldestHours": 6}, "ship": {"oldestHours": 20}, "bill": {"oldestHours": 1010}}, "flows": {"c1": {"sinceLastUpdate": 2, "sinceShiftStart": 41}, "c2": {"sinceLastUpdate": 3, "sinceShiftStart": 37}, "c3": {"sinceLastUpdate": 1, "sinceShiftStart": 31}, "c4": {"sinceLastUpdate": 0, "sinceShiftStart": 24}, "c5": {"sinceLastUpdate": 1, "sinceShiftStart": 9}}, "exceptions": [{"id": "NW-3107", "type": "ops", "step": "stock", "text": "Supplier late — Alder Creek Dairy, PO 4412"}, {"id": "NW-3104", "type": "sys", "step": "ship", "text": "Tracking sync failed — Coastline Freight"}, {"id": "NW-3101", "type": "cus", "step": "orders", "text": "Credit limit exceeded — Customer C-1042"}, {"id": "NW-3098", "type": "ops", "step": "pick", "text": "Short pick — Rye flour 25 kg, bin A-12"}, {"id": "NW-3095", "type": "ops", "step": "orders", "text": "Address check failed — Order 50418"}, {"id": "NW-3092", "type": "cus", "step": "bill", "text": "Invoice disputed — Customer C-2217"}, {"id": "NW-3090", "type": "ops", "step": "stock", "text": "Discontinued product on order — Order 50472"}, {"id": "NW-3087", "type": "sys", "step": "pick", "text": "Label printer offline — Dock 2"}, {"id": "NW-3083", "type": "ops", "step": "ship", "text": "Missed pickup — Ridgeway Couriers"}, {"id": "NW-3080", "type": "ops", "step": "pick", "text": "Damaged stock — Maple syrup, 6 cases"}, {"id": "NW-3077", "type": "cus", "step": "ship", "text": "Delivery refused — Customer C-3380"}, {"id": "NW-3074", "type": "ops", "step": "stock", "text": "Reorder level breached — Aged cheddar 5 kg"}], "messages": [{"text": "Bayside Growers shipment received — 14 products restocked", "step": "stock", "tone": "better"}]};
+
+(function () {
+'use strict';
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (sel, root) => (root || document).querySelector(sel);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const R = Math.round;
+const stage = $('#stage');
+const drawer = $('#drawer');
+const params = new URLSearchParams(location.search);
+
+const DEFAULT_STATES = [
+  { id: 'calm', label: 'Calm', color: '#6E7C8C' },
+  { id: 'watch', label: 'Watch', color: '#F2C14E' },
+  { id: 'act', label: 'Act', color: '#FF6A4D', glow: true }
+];
+
+const S = {
+  config: null, feed: null, prev: null, base: null, log: [], logSeq: 0,
+  pos: {}, pinned: false, layout: 'row', deltaMode: 'lastUpdate', refresh: { mode: 'live', minutes: 5 },
+  paused: false, source: 'demo', feedUrl: '', configUrl: '', timer: null, staleTimer: null, error: null,
+  geo: {}, ind: {}, stepById: {}, kiosk: false, W: 1920, H: 1080, scale: 1, drag: null, exPool: [], idSeq: 1,
+  fileHandle: null, lastMod: 0, pendingHandle: null
+};
+
+/* ---------- utilities ---------- */
+function toast(msg, err) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.className = ''; }, err ? 6000 : 3000);
+}
+function hhmmss(d) {
+  const p = (n) => String(n).padStart(2, '0');
+  return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+}
+function fmtHours(h) {
+  if (h == null || isNaN(h)) return '—';
+  if (h < 1) return R(h * 60) + 'm';
+  if (h < 24) return R(h) + 'h';
+  const d = Math.floor(h / 24), r = R(h - d * 24);
+  return r ? d + 'd ' + r + 'h' : d + 'd';
+}
+function fmt(def, v) {
+  if (v == null || isNaN(v)) return '—';
+  switch (def.format) {
+    case 'percent': return (Math.round(v * 10) / 10) + '%';
+    case 'decimal': return v.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+    case 'currency':
+      try { return v.toLocaleString('en-US', { style: 'currency', currency: def.unit || 'USD', maximumFractionDigits: 0 }); } catch (e) { return v.toLocaleString('en-US'); }
+    case 'duration': return fmtHours(v);
+    default: return v.toLocaleString('en-US', { maximumFractionDigits: 0 }) + (def.unit && def.format !== 'currency' ? ' ' + esc(def.unit) : '');
+  }
+}
+function fmtDelta(def, d) {
+  const a = Math.abs(d);
+  if (def.format === 'duration') return fmtHours(a);
+  if (def.format === 'percent') return (Math.round(a * 10) / 10) + '%';
+  if (def.format === 'decimal') return (Math.round(a * 10) / 10).toString();
+  return a.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+function hexA(hex, a) {
+  const h = hex.replace('#', '').slice(0, 6);
+  const n = parseInt(h, 16);
+  return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+}
+function lighten(hex) {
+  const h = hex.replace('#', '').slice(0, 6);
+  const n = parseInt(h, 16);
+  const f = (c) => Math.min(255, R(c + (255 - c) * 0.35));
+  return 'rgb(' + f((n >> 16) & 255) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')';
+}
+function download(name, obj) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+function recall(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+
+/* ---------- validation & normalisation ---------- */
+const ID_RE = /^[A-Za-z][A-Za-z0-9_-]{0,63}$/;
+const HEX_RE = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+function badId(v) { return typeof v !== 'string' || !ID_RE.test(v); }
+function checkConfig(c) {
+  const errs = [];
+  if (!c || typeof c !== 'object') return ['Config is not a JSON object.'];
+  if (!c.id) errs.push('Config needs an "id".');
+  else if (badId(c.id)) errs.push('Config id must be letters, digits, _ or - (starting with a letter).');
+  if (!Array.isArray(c.steps) || !c.steps.length) errs.push('Config needs a non-empty "steps" array.');
+  const seen = new Set(), steps = new Set();
+  (c.steps || []).forEach((s, i) => {
+    if (!s.id) errs.push('Step ' + (i + 1) + ' has no id.');
+    else if (badId(s.id)) errs.push('Step ' + (i + 1) + ' has an id with characters that are not allowed.');
+    steps.add(s.id);
+    if (!s.hero || !s.hero.id) errs.push('Step "' + (s.id || i + 1) + '" needs a hero indicator with an id.');
+    [s.hero].concat(s.indicators || []).forEach((d) => {
+      if (!d || !d.id) return;
+      if (badId(d.id)) errs.push('Indicator id "' + d.id + '" has characters that are not allowed.');
+      if (seen.has(d.id)) errs.push('Indicator id "' + d.id + '" is used twice.');
+      seen.add(d.id);
+    });
+  });
+  (c.connectors || []).forEach((k) => {
+    if (!k.id) errs.push('A connector has no id.');
+    else if (badId(k.id)) errs.push('A connector id has characters that are not allowed.');
+    if (!steps.has(k.from) || !steps.has(k.to)) errs.push('Connector "' + k.id + '" points at a step that does not exist.');
+  });
+  return errs;
+}
+function checkFeed(f) {
+  if (!f || typeof f !== 'object') return ['Feed is not a JSON object.'];
+  if (!f.values || typeof f.values !== 'object') return ['Feed needs a "values" object.'];
+  Object.keys(f.values).forEach((k) => { const n = typeof f.values[k] === 'number' ? f.values[k] : NaN; if (!isFinite(n)) delete f.values[k]; });
+  return [];
+}
+function normalise(c) {
+  c = clone(c);
+  c.display = c.display || {};
+  c.display.refresh = Object.assign({ mode: 'live', intervalMinutes: 5, options: [5, 10, 20] }, c.display.refresh || {});
+  c.display.delta = Object.assign({ baseline: 'lastUpdate', shiftStart: '07:00', fadeSeconds: 14 }, c.display.delta || {});
+  c.display.motion = Object.assign({ pulseOnChange: true, flowDots: true, respectReducedMotion: true }, c.display.motion || {});
+  c.display.canvas = Object.assign({ width: 1920, height: 1080 }, c.display.canvas || {});
+  c.states = (c.states && c.states.length >= 2) ? c.states : DEFAULT_STATES;
+  c.states.forEach((s, i) => { if (!HEX_RE.test(s.color || '')) s.color = (DEFAULT_STATES[Math.min(i, DEFAULT_STATES.length - 1)] || {}).color || '#6E7C8C'; });
+  c.loops = c.loops || [];
+  c.loops.forEach((l) => { if (l.color != null && !HEX_RE.test(l.color)) delete l.color; });
+  c.connectors = c.connectors || [];
+  c.steps.forEach((s, i) => {
+    s.order = s.order || i + 1;
+    s.indicators = s.indicators || [];
+    if (!s.compactIndicators || !s.compactIndicators.length) s.compactIndicators = s.indicators.slice(0, 2).map((d) => d.id);
+  });
+  c.exceptions = Object.assign({ enabled: true, title: 'Exceptions', placement: 'panel', types: [], showOnSteps: true }, c.exceptions || {});
+  c.exceptions.types.forEach((t) => { if (t.color != null && !HEX_RE.test(t.color)) delete t.color; });
+  c.changeLog = Object.assign({ enabled: true, maxItems: 6 }, c.changeLog || {});
+  return c;
+}
+
+/* ---------- config ---------- */
+function applyConfig(cfg, opts) {
+  opts = opts || {};
+  const errs = checkConfig(cfg);
+  if (errs.length) { toast('Config problem: ' + errs[0], true); return false; }
+  const c = normalise(cfg);
+  S.config = c;
+  S.W = c.display.canvas.width; S.H = c.display.canvas.height;
+  S.ind = {}; S.stepById = {};
+  c.steps.forEach((s) => {
+    S.stepById[s.id] = s;
+    [s.hero].concat(s.indicators).forEach((d) => { S.ind[d.id] = { def: d, step: s }; });
+  });
+  const lay = params.get('layout') || c.display.layout || 'row';
+  S.layout = lay === 'free' ? 'orbit' : (lay === 'orbit' ? 'orbit' : 'row');
+  S.deltaMode = c.display.delta.baseline;
+  S.refresh = { mode: c.display.refresh.mode === 'interval' ? 'interval' : 'live', minutes: c.display.refresh.intervalMinutes || 5 };
+  document.documentElement.style.setProperty('--fade', (c.display.delta.fadeSeconds || 14) + 's');
+  document.body.classList.toggle('light', c.display.theme === 'light');
+  document.body.classList.toggle('rm', c.display.motion.respectReducedMotion !== false);
+  document.title = c.title + ' · WALL Pattern';
+  const saved = recall('wallpattern:' + c.id);
+  S.pos = (saved && saved.pos) || {};
+  S.pinned = saved && typeof saved.pinned === 'boolean' ? saved.pinned : !!c.display.layoutPinned;
+  if (params.get('pin') === '1') S.pinned = true;
+  S.feed = null; S.prev = null; S.base = null; S.log = []; S.exPool = [];
+  if (!opts.keepSource) S.error = null;
+  buildStage();
+  return true;
+}
+
+/* ---------- feed ingestion ---------- */
+function ingest(feed, why) {
+  const errs = checkFeed(feed);
+  if (errs.length) { toast('Feed problem: ' + errs[0], true); return; }
+  if (feed.wallId && S.config && feed.wallId !== S.config.id) toast('Note: feed is for "' + feed.wallId + '", wall is "' + S.config.id + '".', true);
+  S.prev = S.feed;
+  S.feed = feed;
+  S.error = null;
+  (feed.exceptions || []).forEach((e) => { if (!S.exPool.some((p) => p.text === e.text)) S.exPool.push({ type: e.type, step: e.step, text: e.text }); });
+  if (feed.baseline && feed.baseline.values) S.base = feed.baseline;
+  else if (!S.base) S.base = { at: feed.generatedAt, values: clone(feed.values) };
+  if (S.prev) addLog(S.prev, feed);
+  else (feed.messages || []).forEach((m) => pushLog(feed, m.text, null, m.tone || 'neutral'));
+  render(true);
+}
+function feedTime(f) { const d = f && f.generatedAt ? new Date(f.generatedAt) : new Date(); return isNaN(d) ? new Date() : d; }
+function pushLog(feed, text, delta, tone) {
+  S.log.unshift({ time: hhmmss(feedTime(feed)), text: text, delta: delta, tone: tone, seq: S.logSeq });
+}
+function addLog(prev, cur) {
+  S.logSeq += 1;
+  const typeLabel = (id) => { const t = S.config.exceptions.types.find((x) => x.id === id); return t ? t.label : id; };
+  const pIds = new Set((prev.exceptions || []).map((e) => e.id));
+  const cIds = new Set((cur.exceptions || []).map((e) => e.id));
+  (cur.exceptions || []).forEach((e) => { if (!pIds.has(e.id)) pushLog(cur, 'New ' + String(typeLabel(e.type)).toLowerCase() + ' exception · ' + e.text, 1, 'worse'); });
+  (prev.exceptions || []).forEach((e) => { if (!cIds.has(e.id)) pushLog(cur, 'Resolved · ' + e.text, -1, 'better'); });
+  Object.keys(S.ind).forEach((id) => {
+    const a = prev.values[id], b = cur.values[id];
+    if (a == null || b == null || a === b) return;
+    const def = S.ind[id].def;
+    pushLog(cur, S.ind[id].step.name + ' · ' + def.label, b - a, toneOf(b - a, def.goodDirection), def);
+  });
+  (cur.messages || []).forEach((m) => { if (!(prev.messages || []).some((x) => x.text === m.text)) pushLog(cur, m.text, null, m.tone || 'neutral'); });
+  S.log = S.log.slice(0, S.config.changeLog.maxItems || 6);
+}
+function toneOf(d, good) {
+  if (!d) return 'neutral';
+  if ((d > 0 && good === 'up') || (d < 0 && good === 'down')) return 'better';
+  if ((d > 0 && good === 'down') || (d < 0 && good === 'up')) return 'worse';
+  return 'neutral';
+}
+
+/* ---------- derived values ---------- */
+function val(id, f) { f = f || S.feed; return f && f.values ? f.values[id] : null; }
+function deltaOf(id) {
+  const cur = val(id);
+  const lastD = S.prev && cur != null && val(id, S.prev) != null ? cur - val(id, S.prev) : 0;
+  let d = lastD;
+  if (S.deltaMode === 'shiftStart') d = S.base && S.base.values[id] != null && cur != null ? cur - S.base.values[id] : 0;
+  return { d: d, fresh: lastD !== 0 };
+}
+function levelOf(def, v) {
+  const t = def.thresholds;
+  if (!t || v == null) return 0;
+  const above = (t.direction || 'above') === 'above';
+  const hit = (x) => x != null && (above ? v >= x : v <= x);
+  const max = S.config.states.length - 1;
+  return Math.min(max, hit(t.act) ? 2 : hit(t.watch) ? 1 : 0);
+}
+function stepLevel(s) {
+  return Math.max.apply(null, [s.hero].concat(s.indicators).map((d) => levelOf(d, val(d.id))));
+}
+function exList(f) { return (f && f.exceptions) || []; }
+function stateIndex(id) { const i = S.config.states.findIndex((s) => s.id === id); return i < 0 ? 99 : i; }
+
+/* ---------- layout ---------- */
+function cardSize() {
+  if (S.layout === 'orbit') return { w: 264, h: 252 };
+  const n = S.config.steps.length;
+  let gap = 98;
+  let w = Math.min(300, (S.W - 128 - gap * (n - 1)) / n);
+  if (w < 210) { gap = 56; w = (S.W - 128 - gap * (n - 1)) / n; }
+  return { w: Math.max(160, w), h: 424, gap: gap };
+}
+function computePositions() {
+  const steps = S.config.steps;
+  const cs = cardSize();
+  const P = {};
+  if (S.layout === 'row') {
+    const total = steps.length * cs.w + (steps.length - 1) * cs.gap;
+    const x0 = (S.W - total) / 2;
+    steps.forEach((s, i) => { P[s.id] = { x: x0 + i * (cs.w + cs.gap) + cs.w / 2, y: 188 + cs.h / 2 }; });
+    P.hub = { x: S.W / 2, y: S.H / 2 };
+    return P;
+  }
+  const cx = S.W / 2, cy = S.H * 0.555, rx = S.W * 0.25, ry = S.H * 0.29;
+  steps.forEach((s, i) => {
+    const saved = S.pos[s.id];
+    if (saved) { P[s.id] = saved; return; }
+    if (s.position) { P[s.id] = { x: s.position.x, y: s.position.y }; return; }
+    const th = (-160 + i * 360 / steps.length) * Math.PI / 180;
+    P[s.id] = { x: cx + rx * Math.cos(th), y: cy + ry * Math.sin(th) };
+  });
+  P.hub = S.pos.hub || { x: cx, y: cy };
+  return P;
+}
+
+/* ---------- stage build ---------- */
+function buildStage() {
+  stage.style.width = S.W + 'px';
+  stage.style.height = S.H + 'px';
+  stage.className = S.kiosk ? 'kiosk' : '';
+  const c = S.config;
+  const hasLoop2 = c.connectors.some((k) => k.route === 'outside');
+  stage.innerHTML =
+    '<svg id="lines" width="' + S.W + '" height="' + S.H + '" viewBox="0 0 ' + S.W + ' ' + S.H + '" aria-hidden="true"></svg>' +
+    '<div id="chevs"></div><div id="flows"></div><div id="hubwrap"></div><div id="cards"></div>' +
+    '<div class="hdr-l"><div class="eyebrow">' + esc(c.eyebrow || 'WALL PATTERN · PROCESS FLOW') + '</div><h1>' + esc(c.title) + '</h1></div>' +
+    '<div class="hdr-r" id="hdr"></div>' +
+    '<div class="progress"><i id="prog"></i></div>' +
+    (S.layout === 'row' ? '<div class="looplabel">' + esc(c.loops[0] ? ('LOOP 1 · ' + c.loops[0].name).toUpperCase() : 'PROCESS FLOW') + '</div>' : '') +
+    '<div id="panels"></div><div class="footer" id="footer"></div>';
+  renderHeader();
+  renderFooter();
+  geometry();
+  render(false);
+  fit();
+  void hasLoop2;
+}
+function fit() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  S.scale = Math.min(vw / S.W, vh / S.H);
+  stage.style.transform = 'scale(' + S.scale + ')';
+}
+window.addEventListener('resize', fit);
+
+/* ---------- header / footer ---------- */
+function pillGroup(label, items, cls) {
+  return '<div class="grp ' + (cls || '') + '" role="group" aria-label="' + esc(label) + '"><span class="glabel">' + esc(label) + '</span><div class="pills">' +
+    items.map((it) => '<button class="pill" data-act="' + it.act + '" data-v="' + esc(it.v) + '" aria-pressed="' + (it.on ? 'true' : 'false') + '">' + esc(it.label) + '</button>').join('') + '</div></div>';
+}
+function renderHeader() {
+  const c = S.config;
+  const opts = c.display.refresh.options || [5, 10, 20];
+  const refreshItems = [{ act: 'refresh', v: 'live', label: 'Live', on: S.refresh.mode === 'live' }].concat(
+    opts.map((m) => ({ act: 'refresh', v: String(m), label: m + ' min', on: S.refresh.mode === 'interval' && S.refresh.minutes === m })));
+  const shiftLbl = 'Shift ' + (c.display.delta.shiftStart || '07:00');
+  const deltaItems = [{ act: 'delta', v: 'lastUpdate', label: 'Last update', on: S.deltaMode === 'lastUpdate' }, { act: 'delta', v: 'shiftStart', label: shiftLbl, on: S.deltaMode === 'shiftStart' }];
+  const layoutItems = [{ act: 'layout', v: 'row', label: 'Row', on: S.layout === 'row' }, { act: 'layout', v: 'orbit', label: 'Orbit', on: S.layout === 'orbit' }];
+  const pinItems = [{ act: 'pin', v: '0', label: 'Arrange', on: !S.pinned }, { act: 'pin', v: '1', label: 'Pinned', on: S.pinned }];
+  $('#hdr').innerHTML =
+    '<div class="hrow"><div class="status" id="status"></div>' +
+    '<button class="btn primary hide-k" data-act="now">Update now</button>' +
+    '<button class="btn hide-k" data-act="pause">' + (S.paused ? 'Resume' : 'Pause') + '</button>' +
+    (S.pendingHandle ? '<button class="btn hide-k" data-act="resume">Resume watching ' + esc(S.pendingHandle.name) + '</button>' : '') +
+    '<button class="btn hide-k" data-act="drawer" aria-label="Open settings">Source &amp; settings</button></div>' +
+    '<div class="hrow hide-k" style="gap:20px">' +
+    pillGroup('Refresh', refreshItems) + pillGroup('Δ since', deltaItems) + pillGroup('Layout', layoutItems) +
+    (S.layout === 'orbit' ? pillGroup('Blocks', pinItems) + '<button class="btn ghost" data-act="reset">Reset</button>' : '') +
+    '</div>';
+  renderStatus();
+}
+function renderStatus() {
+  const el = $('#status');
+  if (!el) return;
+  const c = S.config;
+  let state = 'live', label = S.refresh.mode === 'live' ? 'Live' : 'Every ' + S.refresh.minutes + ' min';
+  if (S.paused) { state = 'off'; label = 'Paused'; }
+  const staleMin = c.display.refresh.staleAfterMinutes;
+  if (!S.paused && S.feed && staleMin && (Date.now() - feedTime(S.feed).getTime()) / 60000 > staleMin) { state = 'off'; label = 'Stale'; }
+  if (S.error) { state = 'err'; label = 'Feed error'; }
+  if (!S.feed) { state = 'off'; label = 'Waiting for feed'; }
+  const src = S.source === 'demo' ? 'Demo data' : S.source === 'url' ? 'Feed: ' + (S.feedUrl.replace(/^https?:\/\//, '').slice(0, 28)) : S.source === 'watch' && S.fileHandle ? 'Watching: ' + S.fileHandle.name : 'File';
+  el.innerHTML = '<span class="beat ' + (state === 'live' ? '' : state) + '"></span><b>' + esc(label) + '</b>' +
+    (S.feed ? '<span class="t">updated ' + hhmmss(feedTime(S.feed)) + '</span>' : '') + '<span class="src">' + esc(src) + '</span>';
+}
+function renderFooter() {
+  const st = S.config.states;
+  $('#footer').style.top = (S.H - 34) + 'px';
+  $('#footer').innerHTML = st.map((s) => '<span class="sw"><i style="background:' + s.color + '"></i>' + esc(s.label) + '</span>').join('') +
+    '<span class="bar">|</span><span><b style="color:var(--better)">↑↓ blue</b> = better · <b style="color:var(--worse)">↑↓ orange</b> = worse</span>' +
+    (S.layout === 'orbit' && S.config.exceptions.enabled ? '<span class="bar">|</span><span>Spokes: exceptions per step</span>' : '') +
+    '<span class="bar">|</span><span id="foothint"></span>';
+  footHint();
+}
+function footHint() {
+  const el = $('#foothint');
+  if (!el) return;
+  const pace = S.source === 'demo' ? 'demo pace: every ' + demoPeriod() / 1000 + 's' : S.source === 'watch' ? 'checking file every ' + (currentPeriod() >= 60000 ? currentPeriod() / 60000 + ' min' : currentPeriod() / 1000 + 's') : '';
+  const lay = S.layout === 'orbit' ? (S.pinned ? 'Layout pinned' : 'Arrange: drag blocks or the hub') : '';
+  el.textContent = [lay, pace, 'K hides controls · F full screen'].filter(Boolean).join(' · ');
+}
+
+/* ---------- geometry: lines, chevrons, flow labels ---------- */
+function geometry() {
+  const c = S.config;
+  const P = computePositions();
+  S.P = P;
+  const cs = cardSize();
+  const ids = c.steps.map((s) => s.id);
+  const orbit = S.layout === 'orbit';
+  const hub = P.hub;
+  const motion = c.display.motion;
+  let svg = '';
+  // spokes
+  if (orbit && c.exceptions.enabled && c.exceptions.showOnSteps !== false) {
+    c.steps.forEach((s) => { svg += '<path id="sp-' + s.id + '" d="M ' + R(hub.x) + ' ' + R(hub.y) + ' L ' + R(P[s.id].x) + ' ' + R(P[s.id].y) + '" style="stroke:var(--spoke);stroke-opacity:.35;stroke-width:0"></path>'; });
+  }
+  // ring closer
+  if (orbit && ids.length > 2) {
+    const a = ids[ids.length - 1], b = ids[0];
+    if (!c.connectors.some((k) => k.from === a && k.to === b)) svg += '<path d="' + quad(P[a], P[b], hub, 90).d + '" style="stroke:var(--line);stroke-width:2;stroke-dasharray:2 8"></path>';
+  }
+  const paths = {};
+  let laneIdx = 0;
+  c.connectors.forEach((k) => {
+    const A = P[k.from], B = P[k.to];
+    if (!A || !B) return;
+    const loop = c.loops.find((l) => l.id === k.loop);
+    const outside = k.route === 'outside';
+    let d;
+    if (orbit) {
+      if (outside) {
+        const maxY = Math.max(A.y, B.y);
+        const p1 = { x: A.x - 60, y: maxY + 280 }, p2 = { x: B.x - 330, y: maxY + 220 };
+        d = 'M ' + R(A.x) + ' ' + R(A.y) + ' C ' + R(p1.x) + ' ' + R(p1.y) + ' ' + R(p2.x) + ' ' + R(p2.y) + ' ' + R(B.x) + ' ' + R(B.y);
+      } else d = quad(A, B, hub, 90).d;
+    } else {
+      const ia = ids.indexOf(k.from), ib = ids.indexOf(k.to);
+      if (!outside && Math.abs(ia - ib) === 1) {
+        const dir = ib > ia ? 1 : -1;
+        const x1 = A.x + dir * cs.w / 2, x2 = B.x - dir * cs.w / 2 - dir * 1;
+        d = 'M ' + R(x1) + ' ' + R(A.y) + ' L ' + R(x2) + ' ' + R(B.y);
+      } else {
+        const lane = 188 + cs.h + 52 + laneIdx * 28;
+        laneIdx += 1;
+        const y1 = A.y + cs.h / 2, y2 = B.y + cs.h / 2 + 1;
+        d = 'M ' + R(A.x) + ' ' + R(y1) + ' L ' + R(A.x) + ' ' + lane + ' L ' + R(B.x) + ' ' + lane + ' L ' + R(B.x) + ' ' + R(y2);
+      }
+    }
+    const color = loop && loop.color && outside ? loop.color : null;
+    const dash = loop && loop.lineStyle === 'dashed' ? '6 8' : loop && loop.lineStyle === 'dotted' ? '2 8' : (outside ? '6 8' : 'none');
+    paths[k.id] = d;
+    svg += '<path id="cn-' + k.id + '" d="' + d + '" data-base="' + (color || '') + '" style="stroke:' + (color || 'var(--conn)') + ';stroke-width:2;stroke-dasharray:' + dash + '"></path>';
+  });
+  // flow dots
+  if (motion.flowDots !== false) {
+    c.connectors.forEach((k) => {
+      if (!paths[k.id] || k.showFlow === false) return;
+      const fl = S.feed && S.feed.flows && S.feed.flows[k.id];
+      const vol = fl ? (fl.sinceShiftStart || 0) : 30;
+      const dur = Math.max(2.6, Math.min(9, 9 - vol / 12));
+      const loop = c.loops.find((l) => l.id === k.loop);
+      const col = k.route === 'outside' && loop && loop.color ? loop.color : 'var(--better)';
+      for (let i = 0; i < 3; i++) {
+        svg += '<circle r="4" class="dot" data-c="' + k.id + '" style="fill:' + col + ';filter:drop-shadow(0 0 5px ' + (col.indexOf('var') === 0 ? 'rgba(124,196,255,.9)' : col) + ')"><animateMotion dur="' + dur.toFixed(2) + 's" begin="-' + (dur * i / 3).toFixed(2) + 's" repeatCount="indefinite" path="' + paths[k.id] + '"></animateMotion>' +
+          '<animate attributeName="opacity" values="0;.9;.9;0" keyTimes="0;.12;.88;1" dur="' + dur.toFixed(2) + 's" begin="-' + (dur * i / 3).toFixed(2) + 's" repeatCount="indefinite"></animate></circle>';
+      }
+    });
+  }
+  $('#lines').innerHTML = svg;
+  // midpoints from real path geometry
+  S.geo = {};
+  const ref = orbit ? hub : { x: S.W / 2, y: S.H / 2 };
+  c.connectors.forEach((k) => {
+    const el = document.getElementById('cn-' + k.id);
+    if (!el) return;
+    const L = el.getTotalLength();
+    const m = el.getPointAtLength(L / 2), a = el.getPointAtLength(Math.max(0, L / 2 - 2)), b = el.getPointAtLength(Math.min(L, L / 2 + 2));
+    let tx = b.x - a.x, ty = b.y - a.y;
+    const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    let nx = -ty, ny = tx;
+    if ((m.x - ref.x) * nx + (m.y - ref.y) * ny < 0) { nx = -nx; ny = -ny; }
+    let low = m;
+    if (k.route === 'outside' && orbit) { for (let i = 0; i <= 60; i++) { const q = el.getPointAtLength(L * i / 60); if (q.y > low.y) low = q; } }
+    S.geo[k.id] = { x: m.x, y: m.y, ang: Math.atan2(ty, tx) * 180 / Math.PI, nx: nx, ny: ny, outside: k.route === 'outside', low: { x: low.x, y: low.y } };
+  });
+  $('#chevs').innerHTML = c.connectors.map((k) => {
+    const g = S.geo[k.id];
+    if (!g) return '';
+    return '<div class="chev" id="ch-' + k.id + '" style="left:' + R(g.x - 8) + 'px;top:' + R(g.y - 8) + 'px;transform:rotate(' + g.ang.toFixed(1) + 'deg)"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3 L11 8 L6 13"></path></svg></div>';
+  }).join('');
+}
+function quad(a, b, hub, bow) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  let nx = mx - hub.x, ny = my - hub.y;
+  const len = Math.hypot(nx, ny) || 1;
+  nx /= len; ny /= len;
+  const cx = mx + nx * bow, cy = my + ny * bow;
+  return { d: 'M ' + R(a.x) + ' ' + R(a.y) + ' Q ' + R(cx) + ' ' + R(cy) + ' ' + R(b.x) + ' ' + R(b.y) };
+}
+
+/* ---------- render ---------- */
+function deltaBadge(def, id, big) {
+  const o = deltaOf(id);
+  if (!o.d) return '';
+  return '<span class="delta ' + toneOf(o.d, def.goodDirection) + ' ' + (o.fresh ? 'fresh' : 'stale') + (big ? ' big' : '') + '">' + (o.d > 0 ? '↑' : '↓') + fmtDelta(def, o.d) + '</span>';
+}
+function chipHTML(level, compact) {
+  const st = S.config.states[level];
+  const color = st.color;
+  return '<span class="chip' + (level >= 2 ? ' pulse' : '') + '" style="color:' + (level === 0 ? 'var(--soft)' : lighten(color)) + ';background:' + (level === 0 ? 'var(--surface2)' : hexA(color, 0.16)) + '"><i style="background:' + color + '"></i>' + esc(st.label) + '</span>';
+}
+function frameStyle(level) {
+  if (level === 0) return 'border-color:var(--line);box-shadow:none';
+  const st = S.config.states[level];
+  return 'border-color:' + hexA(st.color, 0.75) + ';box-shadow:' + (st.glow ? '0 0 0 4px ' + hexA(st.color, 0.10) + ',0 0 48px ' + hexA(st.color, 0.14) : 'none');
+}
+function rowHTML(def) {
+  const v = val(def.id);
+  const lvl = levelOf(def, v);
+  const st = S.config.states[lvl];
+  const fresh = deltaOf(def.id).fresh && S.config.display.motion.pulseOnChange !== false;
+  return '<div class="r' + (fresh ? ' flash' : '') + '"><span class="l">' + (lvl ? '<span class="tdot' + (lvl >= 2 ? ' p' : '') + '" style="background:' + st.color + '"></span>' : '') + esc(def.label) + '</span>' +
+    '<span class="v">' + deltaBadge(def, def.id, false) + '<span class="n">' + fmt(def, v) + '</span></span></div>';
+}
+function cardHTML(s, compact) {
+  const lvl = stepLevel(s);
+  const hv = val(s.hero.id);
+  const heroFresh = deltaOf(s.hero.id).fresh && S.config.display.motion.pulseOnChange !== false;
+  const exN = exList(S.feed).filter((e) => e.step === s.id).length;
+  const exOn = S.config.exceptions.enabled && S.config.exceptions.showOnSteps !== false;
+  const age = S.feed && S.feed.ages && S.feed.ages[s.id];
+  const ageHTML = s.age ? '<span class="age' + (age && s.age.targetHours != null && age.oldestHours > s.age.targetHours ? ' over' : '') + '">' + esc(s.age.label || 'Oldest') + ' ' + (age ? fmtHours(age.oldestHours) : '—') + (s.age.targetHours != null ? ' · target ' + fmtHours(s.age.targetHours) : '') + '</span>' : '';
+  const rows = compact ? s.compactIndicators.map((id) => S.ind[id] && S.ind[id].def).filter(Boolean) : s.indicators;
+  const exBadge = exOn ? '<span class="exb' + (exN ? '' : ' none') + (compact ? ' mini' : '') + '">' + (exN ? exN + (compact ? ' ex' : exN === 1 ? ' exception' : ' exceptions') : (compact ? '' : 'No exceptions')) + '</span>' : '';
+  const num = String(s.order).padStart(2, '0');
+  return '<div class="c-top"><span class="c-num">' + num + '</span><span class="c-right">' + (compact && exN ? exBadge : '') + chipHTML(lvl, compact) + '</span></div>' +
+    '<div class="c-name">' + esc(s.name) + '</div>' + (!compact && s.subtitle ? '<div class="c-sub">' + esc(s.subtitle) + '</div>' : '') +
+    '<div class="hero' + (heroFresh ? ' flash' : '') + '"><div class="hval-row"><span class="hval">' + fmt(s.hero, hv) + '</span>' + deltaBadge(s.hero, s.hero.id, true) + '</div><div class="hcap">' + esc(s.hero.label) + (s.hero.caption ? ' · ' + esc(s.hero.caption) : '') + '</div></div>' +
+    (compact ? '' : '<div class="sep"></div>') +
+    '<div class="rows">' + rows.map(rowHTML).join('') + '</div>' +
+    '<div class="c-foot">' + ageHTML + (!compact ? exBadge : '') + '</div>';
+}
+function render(fromFeed) {
+  if (!S.config) return;
+  const c = S.config;
+  const orbit = S.layout === 'orbit';
+  const cs = cardSize();
+  const P = S.P;
+  // cards
+  const wrap = $('#cards');
+  c.steps.forEach((s) => {
+    let el = document.getElementById('card-' + s.id);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'card-' + s.id;
+      el.dataset.step = s.id;
+      el.setAttribute('role', 'group');
+      wrap.appendChild(el);
+      el.addEventListener('pointerdown', startDrag);
+    }
+    el.className = 'card ' + (orbit ? 'compact' : 'row') + (orbit && !S.pinned ? ' drag' : '');
+    el.style.cssText = 'left:' + R(P[s.id].x - cs.w / 2) + 'px;top:' + R(P[s.id].y - cs.h / 2) + 'px;width:' + R(cs.w) + 'px;height:' + cs.h + 'px;' + frameStyle(stepLevel(s));
+    el.setAttribute('aria-label', s.name);
+    el.innerHTML = cardHTML(s, orbit);
+  });
+  // connector state, flows, spokes
+  renderFlows();
+  if (orbit) renderHub(); else $('#hubwrap').innerHTML = '';
+  renderPanels();
+  renderStatus();
+  footHint();
+  if (fromFeed) restartProgress();
+}
+function renderFlows() {
+  const c = S.config;
+  const ids = {};
+  c.steps.forEach((s) => { ids[s.id] = stepLevel(s); });
+  let html = '';
+  c.connectors.forEach((k) => {
+    const g = S.geo[k.id];
+    const path = document.getElementById('cn-' + k.id);
+    if (!g || !path) return;
+    const fl = (S.feed && S.feed.flows && S.feed.flows[k.id]) || {};
+    const last = fl.sinceLastUpdate || 0;
+    const n = S.deltaMode === 'shiftStart' ? (fl.sinceShiftStart || 0) : last;
+    let stall = false;
+    if (k.stallWhen) {
+      if (k.stallWhen.step && k.stallWhen.stateAtLeast && ids[k.stallWhen.step] != null) stall = ids[k.stallWhen.step] >= stateIndex(k.stallWhen.stateAtLeast);
+      if (k.stallWhen.flowBelow != null && S.prev && last < k.stallWhen.flowBelow) stall = true;
+    }
+    path.style.stroke = stall ? '#F2C14E' : (path.dataset.base || 'var(--conn)');
+    path.style.strokeWidth = stall ? '3' : '2';
+    const ch = document.getElementById('ch-' + k.id);
+    if (ch) ch.classList.toggle('stall', stall);
+    const loop = c.loops.find((l) => l.id === k.loop);
+    const off = g.outside ? 26 : 42;
+    const lx = g.x + g.nx * off, ly = g.y + g.ny * off;
+    const cnt = '<span class="cnt' + (n ? '' : ' zero') + (last ? ' fresh' : '') + '">+' + n.toLocaleString('en-US') + (S.deltaMode === 'lastUpdate' && fl.sinceShiftStart != null ? ' · ' + fl.sinceShiftStart.toLocaleString('en-US') : '') + '</span>';
+    if (g.outside) {
+      const ltop = Math.min(S.H - 90, g.low.y + 6), lleft = Math.max(16, Math.min(S.W - 356, g.low.x - 170));
+      html += '<div class="flow loop" style="left:' + R(lleft) + 'px;top:' + R(ltop) + 'px;width:340px;height:40px"><span class="ln">' + esc(loop ? loop.name : 'Return loop') + '</span><span style="display:flex;gap:6px;align-items:baseline">' + cnt + '<span class="cap">' + esc(k.caption || '') + '</span></span></div>';
+    } else {
+      html += '<div class="flow' + (stall ? ' stall' : '') + '" style="left:' + R(lx - 70) + 'px;top:' + R(ly - 22) + 'px;width:140px;height:44px">' + cnt + '<span class="cap">' + esc(k.caption || '') + (stall ? ' · ' + esc(k.stallCaption || 'slow') : '') + '</span></div>';
+    }
+  });
+  $('#flows').innerHTML = html;
+  // spokes
+  if (S.layout === 'orbit') {
+    const ex = exList(S.feed), pex = exList(S.prev);
+    c.steps.forEach((s) => {
+      const sp = document.getElementById('sp-' + s.id);
+      if (!sp) return;
+      const nn = ex.filter((e) => e.step === s.id).length;
+      const pn = pex.filter((e) => e.step === s.id).length;
+      sp.style.strokeWidth = nn ? Math.min(12, 1.5 + nn * 1.3).toFixed(1) : '0';
+      sp.style.strokeOpacity = S.prev && nn !== pn ? '1' : '.35';
+      if (S.prev && nn !== pn) setTimeout(() => { sp.style.transition = 'stroke-opacity 2.5s'; sp.style.strokeOpacity = '.35'; }, 60);
+    });
+  }
+}
+function exCounts(list) {
+  const c = {};
+  list.forEach((e) => { c[e.type] = (c[e.type] || 0) + 1; });
+  return c;
+}
+function exLevel(total) {
+  const t = S.config.exceptions.thresholds;
+  return t ? levelOf({ thresholds: t }, total) : 0;
+}
+function exDelta(cur, prev, base) {
+  if (S.deltaMode === 'shiftStart') return null;
+  return S.prev ? cur - prev : 0;
+}
+function renderHub() {
+  const c = S.config;
+  if (!c.exceptions.enabled) { $('#hubwrap').innerHTML = ''; return; }
+  const hub = S.P.hub;
+  const ex = exList(S.feed);
+  const total = ex.length;
+  const d = S.prev ? total - exList(S.prev).length : 0;
+  const lvl = exLevel(total);
+  const counts = exCounts(ex);
+  const types = c.exceptions.types.length ? c.exceptions.types : Object.keys(counts).map((k) => ({ id: k, label: k }));
+  $('#hubwrap').innerHTML = '<div class="halo" style="left:' + R(hub.x - 180) + 'px;top:' + R(hub.y - 180) + 'px"></div>' +
+    '<div class="hub' + (S.pinned ? '' : ' drag') + '" id="hub" data-step="hub" role="group" aria-label="' + esc(c.exceptions.title) + '" style="left:' + R(hub.x - 124) + 'px;top:' + R(hub.y - 124) + 'px;' + frameStyle(lvl) + '">' +
+    '<span class="ttl">' + esc(c.exceptions.title) + '</span>' +
+    '<div class="tot' + (d ? ' flash' : '') + '"><b>' + total + '</b>' + (d ? '<span class="delta big fresh ' + toneOf(d, 'down') + '">' + (d > 0 ? '↑' : '↓') + Math.abs(d) + '</span>' : '') + '</div>' +
+    chipHTML(lvl) +
+    '<div class="types">' + types.map((t) => '<span>' + esc(t.shortLabel || t.label) + ' <b>' + (counts[t.id] || 0) + '</b></span>').join('') + '</div></div>';
+  $('#hub').addEventListener('pointerdown', startDrag);
+}
+function logHTML(max) {
+  if (!S.log.length) return '<div class="empty">Waiting for the first change…</div>';
+  return S.log.slice(0, max).map((e) => {
+    const badge = e.delta == null ? '' : '<span class="delta ' + e.tone + '">' + (e.delta > 0 ? '↑' : '↓') + Math.abs(R(e.delta * 10) / 10) + '</span>';
+    return '<div class="e' + (e.seq === S.logSeq && S.prev ? ' flash' : '') + '"><span class="tm">' + e.time + '</span><span class="tx">' + esc(e.text) + '</span>' + badge + '</div>';
+  }).join('');
+}
+function renderPanels() {
+  const c = S.config;
+  const el = $('#panels');
+  const top = S.H - 364, h = 300;
+  if (S.layout === 'orbit') {
+    el.innerHTML = c.changeLog.enabled ? '<div class="panel" style="left:' + (S.W - 404) + 'px;top:' + (S.H - 268) + 'px;width:340px;height:204px;padding:18px 20px;gap:8px;background:' + 'var(--surface)' + '"><span class="p-title" style="font-size:17px">What changed</span><div class="log">' + logHTML(4) + '</div></div>' : '';
+    return;
+  }
+  const logW = 580, gap = 80;
+  const exW = c.changeLog.enabled ? S.W - 128 - logW - gap : S.W - 128;
+  let html = '';
+  if (c.exceptions.enabled) {
+    const ex = exList(S.feed), pex = exList(S.prev);
+    const counts = exCounts(ex), pc = exCounts(pex);
+    const lvl = exLevel(ex.length);
+    const types = c.exceptions.types.length ? c.exceptions.types : Object.keys(counts).map((k) => ({ id: k, label: k }));
+    const tiles = types.map((t) => {
+      const n = counts[t.id] || 0;
+      const d = S.prev ? n - (pc[t.id] || 0) : 0;
+      const latest = ex.find((e) => e.type === t.id);
+      return '<div class="ex-tile' + (d ? ' flash' : '') + '"><span class="nm">' + esc(t.label) + '</span><div class="ct"><b>' + n + '</b>' + (d ? '<span class="delta big fresh ' + toneOf(d, 'down') + '">' + (d > 0 ? '↑' : '↓') + Math.abs(d) + '</span>' : '') + '</div><span class="lt">' + (latest ? 'Latest: ' + esc(latest.text) : 'None open') + '</span></div>';
+    }).join('');
+    const where = c.steps.map((s) => '<span class="s">' + esc(s.name) + '<b>' + ex.filter((e) => e.step === s.id).length + '</b></span>').join('');
+    html += '<div class="panel" style="left:64px;top:' + top + 'px;width:' + exW + 'px;height:' + h + 'px;padding:24px;gap:16px;' + frameStyle(lvl) + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:baseline;gap:14px"><span class="c-num">EX</span><span class="p-title">' + esc(c.exceptions.title) + '</span><span class="p-sub">Across every step, by type</span></div>' +
+      '<div style="display:flex;align-items:center;gap:14px"><span style="font-size:14px;color:var(--soft)"><b style="font-family:var(--f-head);font-size:20px;color:var(--strong)">' + ex.length + '</b> open</span>' + chipHTML(lvl) + '</div></div>' +
+      '<div class="ex-grid" style="grid-template-columns:repeat(' + Math.max(1, Math.min(4, types.length)) + ',minmax(0,1fr))">' + tiles + '</div>' +
+      '<div class="where"><span class="glabel" style="margin-right:4px">Where they sit</span>' + where + '</div></div>';
+  }
+  if (c.changeLog.enabled) {
+    html += '<div class="panel" style="left:' + (S.W - 64 - logW) + 'px;top:' + top + 'px;width:' + logW + 'px;height:' + h + 'px;padding:24px;gap:12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="p-title">What changed</span><span class="p-sub">Newest first · blocks show Δ ' + (S.deltaMode === 'shiftStart' ? 'since shift start' : 'since last update') + '</span></div>' +
+      '<div class="log">' + logHTML(6) + '</div></div>';
+  }
+  el.innerHTML = html;
+}
+function restartProgress() {
+  const p = $('#prog');
+  if (!p) return;
+  p.style.animation = 'none';
+  void p.offsetWidth;
+  if (S.paused || S.source === 'file') return;
+  const ms = currentPeriod();
+  p.style.animation = 'prog ' + (ms / 1000) + 's linear forwards';
+}
+
+/* ---------- drag & pin (orbit) ---------- */
+function startDrag(e) {
+  if (S.layout !== 'orbit' || S.pinned) return;
+  const id = e.currentTarget.dataset.step;
+  const r = stage.getBoundingClientRect();
+  const pt = S.P[id];
+  S.drag = { id: id, el: e.currentTarget, r: r, ox: (e.clientX - r.left) / S.scale - pt.x, oy: (e.clientY - r.top) / S.scale - pt.y };
+  e.currentTarget.classList.add('dragging');
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+  e.preventDefault();
+}
+window.addEventListener('pointermove', (e) => {
+  const d = S.drag;
+  if (!d) return;
+  const cs = cardSize();
+  const isHub = d.id === 'hub';
+  const hw = isHub ? 124 : cs.w / 2, hh = isHub ? 124 : cs.h / 2;
+  const x = Math.max(hw + 16, Math.min(S.W - hw - 16, (e.clientX - d.r.left) / S.scale - d.ox));
+  const y = Math.max(160 + hh, Math.min(S.H - hh - 50, (e.clientY - d.r.top) / S.scale - d.oy));
+  S.pos[d.id] = { x: x, y: y };
+  if (d.raf) return;
+  d.raf = requestAnimationFrame(() => {
+    d.raf = 0;
+    S.P[d.id] = S.pos[d.id];
+    if (isHub) {
+      d.el.style.left = R(x - 124) + 'px'; d.el.style.top = R(y - 124) + 'px';
+      const halo = $('.halo'); if (halo) { halo.style.left = R(x - 180) + 'px'; halo.style.top = R(y - 180) + 'px'; }
+    } else { d.el.style.left = R(x - cs.w / 2) + 'px'; d.el.style.top = R(y - cs.h / 2) + 'px'; }
+    redrawLines();
+  });
+});
+function endDrag() {
+  const d = S.drag;
+  if (!d) return;
+  S.drag = null;
+  d.el.classList.remove('dragging');
+  Object.keys(S.P).forEach((k) => { if (!S.pos[k]) S.pos[k] = S.P[k]; });
+  store('wallpattern:' + S.config.id, { pos: S.pos, pinned: S.pinned });
+}
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+function redrawLines() {
+  const keep = S.P;
+  geometry();
+  S.P = keep;
+  renderFlows();
+}
+
+/* ---------- watch a local file (File System Access API) ---------- */
+const canWatch = typeof window.showOpenFilePicker === 'function';
+function idb(mode, fn) {
+  return new Promise((resolve) => {
+    try {
+      const open = indexedDB.open('wallpattern', 1);
+      open.onupgradeneeded = () => open.result.createObjectStore('handles');
+      open.onerror = () => resolve(null);
+      open.onsuccess = () => {
+        try {
+          const tx = open.result.transaction('handles', mode);
+          const req = fn(tx.objectStore('handles'));
+          tx.oncomplete = () => resolve(req && req.result);
+          tx.onerror = () => resolve(null);
+        } catch (e) { resolve(null); }
+      };
+    } catch (e) { resolve(null); }
+  });
+}
+const handleKey = () => 'feed:' + (S.config ? S.config.id : '');
+function saveHandle(h) { return idb('readwrite', (st) => (h ? st.put(h, handleKey()) : st.delete(handleKey()))); }
+function loadHandle() { return idb('readonly', (st) => st.get(handleKey())); }
+async function pickWatch() {
+  if (!canWatch) { toast('Watching a file needs Chrome or Edge. In other browsers, drop feed files onto the wall instead.', true); return; }
+  try {
+    const picked = await window.showOpenFilePicker({ types: [{ description: 'Wall feed', accept: { 'application/json': ['.json'] } }], multiple: false });
+    if (picked && picked[0]) startWatch(picked[0]);
+  } catch (e) { if (e && e.name !== 'AbortError') toast('Could not open that file: ' + e.message, true); }
+}
+function startWatch(handle) {
+  S.source = 'watch';
+  S.fileHandle = handle;
+  S.pendingHandle = null;
+  S.lastMod = 0;
+  S.feed = null; S.prev = null; S.base = null; S.log = [];
+  saveHandle(handle);
+  render(false);
+  renderHeader();
+  readWatched(true);
+  schedule();
+  toast('Watching ' + handle.name + ' — the wall re-reads it on every refresh.');
+}
+async function readWatched(force) {
+  const h = S.fileHandle;
+  if (!h) return;
+  try {
+    const f = await h.getFile();
+    if (!force && f.lastModified === S.lastMod) { renderStatus(); return; }
+    S.lastMod = f.lastModified;
+    const txt = await f.text();
+    let j;
+    try { j = JSON.parse(txt); } catch (e) { S.error = 'not valid JSON'; renderStatus(); toast(h.name + ' is not valid JSON right now (it may be mid-write). Will retry next refresh.', true); S.lastMod = 0; return; }
+    ingest(j, 'watch');
+  } catch (e) {
+    S.error = String(e.message || e);
+    renderStatus();
+    toast('Cannot read ' + h.name + ': ' + S.error, true);
+  }
+}
+async function resumeWatch() {
+  const h = S.pendingHandle;
+  if (!h) return;
+  try {
+    const p = await h.requestPermission({ mode: 'read' });
+    if (p === 'granted') startWatch(h); else toast('Permission was not granted for ' + h.name + '.', true);
+  } catch (e) { toast('Could not resume: ' + e.message, true); }
+}
+function stopWatch() {
+  S.fileHandle = null;
+  S.pendingHandle = null;
+  saveHandle(null);
+  startDemo();
+}
+window.__wallStartWatch = startWatch;
+
+/* ---------- sources & timing ---------- */
+function demoPeriod() { return S.refresh.mode === 'live' ? 4000 : 8000; }
+function currentPeriod() {
+  if (S.source === 'demo') return demoPeriod();
+  if (S.source === 'watch') return S.refresh.mode === 'live' ? 5000 : S.refresh.minutes * 60000;
+  return S.refresh.mode === 'live' ? 10000 : S.refresh.minutes * 60000;
+}
+function schedule() {
+  clearInterval(S.timer);
+  S.timer = null;
+  restartProgress();
+  footHint();
+  if (S.paused || S.source === 'file') return;
+  S.timer = setInterval(pull, currentPeriod());
+}
+function pull() {
+  if (S.source === 'demo') ingest(simulate(S.feed), 'demo');
+  else if (S.source === 'url') fetchFeed();
+  else if (S.source === 'watch') readWatched(false);
+}
+function fetchFeed() {
+  if (!S.feedUrl) return;
+  fetch(S.feedUrl, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((j) => ingest(j, 'url'))
+    .catch((err) => { S.error = String(err.message || err); renderStatus(); toast('Could not read the feed: ' + S.error + '. If it is on another site, it must allow cross-origin (CORS) requests.', true); });
+}
+function fetchJSON(url) { return fetch(url, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url); return r.json(); }); }
+
+/* ---------- demo simulator ---------- */
+function synthFeed(c) {
+  const values = {}, base = {};
+  c.steps.forEach((s) => {
+    [s.hero].concat(s.indicators).forEach((d) => {
+      let v;
+      const t = d.thresholds;
+      if (d.cumulative) { v = 20 + Math.floor(Math.random() * 60); base[d.id] = 0; values[d.id] = v; return; }
+      if (t && (t.watch != null || t.act != null)) {
+        const ref = t.watch != null ? t.watch : t.act;
+        v = (t.direction || 'above') === 'above' ? Math.max(0, R(ref * (0.6 + Math.random() * 0.6))) : R(ref * (1.0 + Math.random() * 0.4));
+      } else v = 10 + Math.floor(Math.random() * 190);
+      if (d.format === 'percent') v = Math.min(100, v);
+      values[d.id] = v; base[d.id] = v;
+    });
+  });
+  const flows = {};
+  c.connectors.forEach((k) => { flows[k.id] = { sinceLastUpdate: 0, sinceShiftStart: 10 + Math.floor(Math.random() * 60) }; });
+  const ages = {};
+  c.steps.forEach((s) => { ages[s.id] = { oldestHours: s.age && s.age.targetHours != null ? R(s.age.targetHours * (0.5 + Math.random())) : R(Math.random() * 72) }; });
+  const exceptions = [];
+  const types = c.exceptions.types.length ? c.exceptions.types : [{ id: 'ops', label: 'Operations' }];
+  for (let i = 0; i < Math.min(8, c.steps.length * 2); i++) {
+    const s = c.steps[i % c.steps.length], t = types[i % types.length];
+    exceptions.push({ id: 'DEMO-' + (S.idSeq++), type: t.id, step: s.id, text: t.label + ' issue at ' + s.name });
+  }
+  const sh = (c.display.delta.shiftStart || '07:00').split(':');
+  const at = new Date(); at.setHours(+sh[0], +sh[1], 0, 0);
+  return { schemaVersion: '1.0', wallId: c.id, generatedAt: new Date().toISOString(), sequence: 1, values: values, baseline: { at: at.toISOString(), values: base }, ages: ages, flows: flows, exceptions: exceptions };
+}
+function simulate(f) {
+  const c = S.config;
+  if (!f) return synthFeed(c);
+  const n = clone(f);
+  n.generatedAt = new Date().toISOString();
+  n.sequence = (f.sequence || 0) + 1;
+  delete n.messages;
+  Object.keys(S.ind).forEach((id) => {
+    const def = S.ind[id].def;
+    let v = n.values[id];
+    if (v == null || Math.random() >= 0.3) return;
+    const step = Math.max(3, R(Math.abs(v) * 0.005));
+    let d = 1 + Math.floor(Math.random() * step);
+    if (!def.cumulative && Math.random() < 0.5) d = -d;
+    v = Math.max(0, v + d);
+    if (def.format === 'percent') v = Math.min(100, v);
+    n.values[id] = v;
+  });
+  n.flows = n.flows || {};
+  c.connectors.forEach((k) => {
+    const fl = n.flows[k.id] || { sinceShiftStart: 0 };
+    const inc = Math.random() < 0.5 ? 1 + Math.floor(Math.random() * 3) : 0;
+    n.flows[k.id] = { sinceLastUpdate: inc, sinceShiftStart: (fl.sinceShiftStart || 0) + inc };
+  });
+  n.ages = n.ages || {};
+  c.steps.forEach((s) => { const a = n.ages[s.id]; if (a) a.oldestHours = Math.max(0, a.oldestHours + (Math.random() < 0.5 ? -1 : 1)); });
+  n.exceptions = (n.exceptions || []).slice();
+  if (Math.random() < 0.45) {
+    const pool = S.exPool.length ? S.exPool : [{ type: (c.exceptions.types[0] || { id: 'ops' }).id, step: c.steps[0].id, text: 'New issue at ' + c.steps[0].name }];
+    const p = pool[Math.floor(Math.random() * pool.length)];
+    n.exceptions.unshift({ id: 'DEMO-' + (S.idSeq++), type: p.type, step: p.step, text: p.text, openedAt: n.generatedAt });
+  }
+  if (Math.random() < 0.35 && n.exceptions.length > 3) n.exceptions.splice(1 + Math.floor(Math.random() * (n.exceptions.length - 1)), 1);
+  return n;
+}
+function startDemo() {
+  S.source = 'demo';
+  const base = S.config.id === DEFAULT_CONFIG.id ? clone(DEFAULT_FEED) : synthFeed(S.config);
+  base.generatedAt = new Date().toISOString();
+  S.feed = null; S.prev = null; S.base = null; S.log = [];
+  ingest(base, 'demo');
+  renderHeader();
+  schedule();
+}
+function startUrl(url) {
+  S.source = 'url';
+  S.feedUrl = url;
+  S.feed = null; S.prev = null; S.base = null; S.log = [];
+  render(false);
+  renderHeader();
+  fetchFeed();
+  schedule();
+}
+
+/* ---------- controls ---------- */
+stage.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act, v = b.dataset.v;
+  if (act === 'now') { if (S.source === 'watch') readWatched(true); else pull(); schedule(); }
+  else if (act === 'resume') resumeWatch();
+  else if (act === 'pause') { S.paused = !S.paused; renderHeader(); schedule(); }
+  else if (act === 'drawer') openDrawer(true);
+  else if (act === 'refresh') { S.refresh = v === 'live' ? { mode: 'live', minutes: S.refresh.minutes } : { mode: 'interval', minutes: +v }; renderHeader(); schedule(); }
+  else if (act === 'delta') { S.deltaMode = v; renderHeader(); render(false); }
+  else if (act === 'layout') { S.layout = v; buildStage(); }
+  else if (act === 'pin') { S.pinned = v === '1'; store('wallpattern:' + S.config.id, { pos: S.pos, pinned: S.pinned }); renderHeader(); render(false); renderHub(); }
+  else if (act === 'reset') { S.pos = {}; store('wallpattern:' + S.config.id, { pos: {}, pinned: S.pinned }); geometry(); render(false); }
+});
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.key === 'k' || e.key === 'K') { S.kiosk = !S.kiosk; stage.classList.toggle('kiosk', S.kiosk); }
+  else if (e.key === 'f' || e.key === 'F') { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+  else if (e.key === 'Escape') openDrawer(false);
+});
+
+/* ---------- drawer ---------- */
+function openDrawer(on) {
+  if (on) renderDrawer();
+  drawer.classList.toggle('open', on);
+  drawer.setAttribute('aria-hidden', on ? 'false' : 'true');
+  if (on) { const f = $('button', drawer); if (f) f.focus(); }
+}
+function renderDrawer() {
+  const here = location.href.split('?')[0];
+  drawer.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center"><h2>Source &amp; settings</h2><button class="btn" data-d="close">Close</button></div>' +
+    '<div class="sec"><h3>Live feed</h3><p>Point the wall at a URL that returns a feed JSON snapshot. It is fetched on the refresh interval (Live = every 10 s).</p>' +
+    '<label>Feed URL<input type="url" id="d-url" placeholder="https://…/wall-feed.json" value="' + esc(S.feedUrl) + '"></label>' +
+    '<div class="row2"><button class="btn primary" data-d="connect">Connect</button><button class="btn" data-d="demo">Use demo data</button></div></div>' +
+    '<div class="sec"><h3>Watch a file on this computer</h3><p>Pick a feed JSON once — for example one your business system overwrites on a schedule in a shared folder. The wall re-reads it on every refresh (Live = every 5 s) and only updates when the file has changed. Nothing is uploaded. The choice is remembered; after a reload, click “Resume watching”.</p>' +
+    (canWatch ? '<div class="row2"><button class="btn primary" data-d="watch">' + (S.source === 'watch' ? 'Watch a different file…' : 'Pick a feed file to watch…') + '</button>' + (S.source === 'watch' || S.pendingHandle ? '<button class="btn" data-d="unwatch">Stop watching</button>' : '') + '</div>'
+      : '<p><b>Needs Chrome or Edge.</b> In this browser, drop feed files onto the wall instead.</p>') + '</div>' +
+    '<div class="sec"><h3>Files</h3><p>Load a wall config (structure) or a feed snapshot. You can also drag a .json file anywhere onto the wall.</p>' +
+    '<div class="row2"><span class="btn filebtn">Load config…<input type="file" accept=".json,application/json" data-d="cfgfile"></span><span class="btn filebtn">Load feed…<input type="file" accept=".json,application/json" data-d="feedfile"></span></div>' +
+    '<div class="row2"><button class="btn" data-d="dlcfg">Download current config</button><button class="btn" data-d="dlfeed">Download current feed</button></div></div>' +
+    '<div class="sec"><h3>Wall-screen link</h3><p>Open the wall with options in the address:</p>' +
+    '<p><code>' + esc(here) + '?config=CONFIG_URL&amp;feed=FEED_URL&amp;layout=orbit&amp;pin=1&amp;kiosk=1</code></p>' +
+    '<p>layout = row | orbit · pin=1 locks blocks · kiosk=1 hides the controls (press K to toggle) · F goes full screen.</p></div>' +
+    '<div class="sec"><h3>Current wall</h3><p>' + esc(S.config.title) + ' · id <code>' + esc(S.config.id) + '</code> · ' + S.config.steps.length + ' steps · ' + S.config.connectors.length + ' connectors</p></div>';
+}
+drawer.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-d]');
+  if (!b) return;
+  const a = b.dataset.d;
+  if (a === 'close') openDrawer(false);
+  else if (a === 'connect') { const u = $('#d-url').value.trim(); if (!u) { toast('Enter a feed URL first.', true); return; } startUrl(u); openDrawer(false); }
+  else if (a === 'demo') { startDemo(); openDrawer(false); }
+  else if (a === 'watch') { openDrawer(false); pickWatch(); }
+  else if (a === 'unwatch') { stopWatch(); openDrawer(false); }
+  else if (a === 'dlcfg') download((S.config.id || 'wall') + '.config.json', S.config);
+  else if (a === 'dlfeed') { if (S.feed) download((S.config.id || 'wall') + '.feed.json', S.feed); else toast('No feed loaded yet.', true); }
+});
+drawer.addEventListener('change', (e) => {
+  const inp = e.target;
+  if (!inp.files || !inp.files[0]) return;
+  readFile(inp.files[0], inp.dataset.d === 'cfgfile' ? 'config' : 'feed');
+  inp.value = '';
+});
+function readFile(file, hint) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    let j;
+    try { j = JSON.parse(fr.result); } catch (err) { toast('That file is not valid JSON.', true); return; }
+    const kind = j && Array.isArray(j.steps) ? 'config' : j && j.values ? 'feed' : hint;
+    if (kind === 'config') {
+      if (applyConfig(j)) { toast('Loaded wall: ' + j.title); if (S.source === 'url' && S.feedUrl) startUrl(S.feedUrl); else if (S.source === 'watch' && S.fileHandle) startWatch(S.fileHandle); else startDemo(); }
+    } else {
+      clearInterval(S.timer);
+      if (S.source !== 'file') { S.feed = null; S.prev = null; S.base = null; S.log = []; }
+      S.source = 'file';
+      ingest(j, 'file');
+      renderHeader();
+      schedule();
+      toast('Loaded feed snapshot' + (j.generatedAt ? ' from ' + hhmmss(feedTime(j)) : '') + '. Load another to see what changed.');
+    }
+    openDrawer(false);
+  };
+  fr.readAsText(file);
+}
+let dragDepth = 0;
+window.addEventListener('dragenter', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) { dragDepth++; $('#dropzone').classList.add('on'); } });
+window.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $('#dropzone').classList.remove('on'); });
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => {
+  e.preventDefault(); dragDepth = 0; $('#dropzone').classList.remove('on');
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readFile(f, 'feed');
+});
+setInterval(renderStatus, 5000);
+
+/* ---------- boot ---------- */
+S.kiosk = params.get('kiosk') === '1';
+const cfgUrl = params.get('config');
+const feedUrl = params.get('feed');
+(cfgUrl ? fetchJSON(cfgUrl).catch((err) => { toast('Could not load config: ' + err.message + ' — showing the sample wall.', true); return DEFAULT_CONFIG; }) : Promise.resolve(DEFAULT_CONFIG))
+  .then((cfg) => {
+    if (!applyConfig(cfg)) applyConfig(DEFAULT_CONFIG);
+    if (feedUrl) { startUrl(feedUrl); return; }
+    startDemo();
+    if (!canWatch) return;
+    loadHandle().then(async (h) => {
+      if (!h || typeof h.queryPermission !== 'function') return;
+      try {
+        const p = await h.queryPermission({ mode: 'read' });
+        if (p === 'granted') startWatch(h); else { S.pendingHandle = h; renderHeader(); }
+      } catch (e) {}
+    });
+  });
+window.__wall = S;
+})();
+</script>
+</body>
+</html>
