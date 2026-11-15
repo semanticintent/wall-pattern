@@ -161,7 +161,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 index.html                       the renderer: self-contained, no build step
 anatomy.html                     the anatomy of a block, as a page
 CHANGELOG.md                     what changed in each version
-docs/adapters.md                 design note: adapters (proposed, not implemented)
+docs/adapters.md                 design note: adapters, spreadsheets, setup agent (proposed)
 skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/
   wall.config.schema.json        structure of a wall
@@ -190,6 +190,7 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | Watch a local feed file (re-read on each refresh, no server) | working in Chrome and Edge; other browsers fall back to drop-in files |
 | Delta window: `shift`, `day` or `week` (v0.2) | working; without a feed baseline, the wall resets its own on the first snapshot of each new window |
 | Adapters: map an existing endpoint to a feed, in the browser or at the edge | proposed, not implemented; see [docs/adapters.md](docs/adapters.md) |
+| Spreadsheet input (two-column CSV) and a setup agent for people without a coding workflow | proposed, not implemented; see [docs/adapters.md](docs/adapters.md#spreadsheets-without-writing-code) |
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.
