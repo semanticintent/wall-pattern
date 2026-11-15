@@ -1,3 +1,5 @@
+<img src="glyph/wall-pattern-amber.svg" width="56" alt="WALL Pattern glyph: two courses of brick in a running bond, one brick lit with a dot">
+
 # WALL Pattern
 
 *Workflow At-a-glance, Live & Legible*
@@ -153,6 +155,9 @@ schema/
 examples/
   fernhill-provisions/           order to cash: five steps, backorder loop, exceptions hub
   hiring-pipeline/               four steps, light theme, return loop
+glyph/
+  wall-pattern.svg               the mark (currentColor), for pages
+  wall-pattern-amber.svg         the same mark in amber, for this README
 README.md
 LICENSE
 ```
@@ -172,6 +177,10 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.
+
+## The mark
+
+Two courses of brick in a running bond, one brick lit. It is a wall, it is grey, and one place needs eyes. Drawn to the semanticintent.ai glyph rules: 24-unit grid, 1.75 stroke, round caps and joins, lines only plus one solid dot, `currentColor`, reads at 16 px. The renderer uses it as its tab icon.
 
 ## Origin
 
