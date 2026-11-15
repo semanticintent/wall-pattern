@@ -22,6 +22,10 @@ WALL Pattern answers that second question, as an open pattern:
 
 ## Quick start
 
+**Live demo:** [semanticintent.github.io/wall-pattern](https://semanticintent.github.io/wall-pattern/) · [as a wall screen](https://semanticintent.github.io/wall-pattern/?kiosk=1) (press **K** for controls)
+
+Or locally:
+
 ```
 open index.html
 ```
