@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3 — 2026-11-15
+
+For people who don't write code, or who use a chat assistant other than Claude. The renderer and schemas are unchanged.
+
+- **A guide for any chat assistant:** `docs/for-assistants.md`. One self-contained file for Microsoft Copilot, ChatGPT, Gemini or Claude: paste it in or attach it, and the assistant can interview the process, write the config, write spreadsheet formulas and a converter, and help schedule the update. It can also be a knowledge file for an organisation's custom assistant.
+- **A wall fed from a spreadsheet:** `examples/repair-desk/`. A `wall` tab saved as CSV (`id,value`, plus `age:<step>` rows and an optional exceptions tab) is turned into a feed by `wall_tab_to_feed.py`, standard-library Python, which reports anything that doesn't match the config. Cells hold totals, so this path has no flows.
+- **Design notes, proposed and not implemented:** `docs/adapters.md` covers adapters that map an existing endpoint to a feed (in the browser or at the edge), a two-column CSV read directly by the renderer, and a setup agent that builds the exporter but never runs inside it.
+
 ## 0.2.2 — 2026-11-15
 
 - **`?` explains the wall.** Press **?** (or **How to read** in the header) and the wall puts numbered markers on its own first block, with a short guide to the seven parts, connectors, the Δ window, "What changed" and Stale. Esc closes it. Hidden in kiosk mode until the key is pressed.
