@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 — 2026-11-15
+
+Fixes found by testing the skill on a real process (an IntentCut video production pipeline), with a fresh agent that had only the skill and the repos.
+
+- **"What changed" now shows connector movement.** One line per update, e.g. *Moved · recorded +1, packed +3*, so it can't crowd out number changes. Before, flows never appeared in the log.
+- **The exceptions panel fits up to six types on one row.** Five types used to wrap a tile onto a second row and push "Where they sit" off a 1920×1080 screen.
+- **Skill** (`skills/wall-pattern/SKILL.md`): asks first whether a wall is the right shape (how many items are in flight); a way to work when no owner can be interviewed; colour that is *true* means the wall is working; ages when entry times aren't recorded; flow keys by content hash or by id and time; what resets at a window boundary; `sequence`, `staleAfterMinutes`, exception text length, which ids must be unique; check that a reused source-of-truth function is stable across tool versions.
+
 ## 0.2.0 — 2026-11-15
 
 Quieter, and no longer tied to shifts. All changes are additive: v0.1 configs and feeds work unchanged, and `schemaVersion` stays `"1.0"`.

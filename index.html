@@ -421,6 +421,13 @@ function addLog(prev, cur) {
     const def = S.ind[id].def;
     pushLog(cur, S.ind[id].step.name + ' · ' + def.label, b - a, toneOf(b - a, def.goodDirection), def);
   });
+  // Movement along connectors: one line per update, so it can't crowd out the numbers.
+  const moved = S.config.connectors.map((k) => {
+    const fl = cur.flows && cur.flows[k.id];
+    const n = fl && fl.sinceLastUpdate > 0 ? fl.sinceLastUpdate : 0;
+    return n ? (k.caption || ((S.stepById[k.from] || {}).name + ' → ' + (S.stepById[k.to] || {}).name)) + ' +' + n.toLocaleString('en-US') : '';
+  }).filter(Boolean);
+  if (moved.length) pushLog(cur, 'Moved · ' + moved.join(', '), null, 'neutral');
   (cur.messages || []).forEach((m) => { if (!(prev.messages || []).some((x) => x.text === m.text)) pushLog(cur, m.text, null, m.tone || 'neutral'); });
   S.log = S.log.slice(0, S.config.changeLog.maxItems || 6);
 }
@@ -865,7 +872,7 @@ function renderPanels() {
     html += '<div class="panel" style="left:64px;top:' + top + 'px;width:' + exW + 'px;height:' + h + 'px;padding:24px;gap:16px;' + frameStyle(lvl) + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:baseline;gap:14px"><span class="c-num">EX</span><span class="p-title">' + esc(c.exceptions.title) + '</span><span class="p-sub">Across every step, by type</span></div>' +
       '<div style="display:flex;align-items:center;gap:14px"><span style="font-size:14px;color:var(--soft)"><b style="font-family:var(--f-head);font-size:20px;color:var(--strong)">' + ex.length + '</b> open</span>' + chipHTML(lvl) + '</div></div>' +
-      '<div class="ex-grid" style="grid-template-columns:repeat(' + Math.max(1, Math.min(4, types.length)) + ',minmax(0,1fr))">' + tiles + '</div>' +
+      '<div class="ex-grid" style="grid-template-columns:repeat(' + Math.max(1, Math.min(6, types.length)) + ',minmax(0,1fr))">' + tiles + '</div>' +
       '<div class="where"><span class="glabel" style="margin-right:4px">Where they sit</span>' + where + '</div></div>';
   }
   if (c.changeLog.enabled) {
