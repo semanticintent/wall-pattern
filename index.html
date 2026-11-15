@@ -165,6 +165,18 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 #drawer .btn{height:40px;font-size:13px;padding:0 16px}
 .filebtn{position:relative;overflow:hidden;display:inline-flex;align-items:center}
 .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#explain-marks{position:absolute;inset:0;pointer-events:none;z-index:40}
+#explain-marks .mk{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent,#7CC4FF);color:#08111a;font:700 14px var(--f-head);box-shadow:0 0 0 4px rgba(124,196,255,.22)}
+#explain-panel{position:fixed;top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:400px;max-width:calc(100vw - 32px);max-height:calc(100vh - 32px);overflow:auto;z-index:90;background:var(--surface);border:1px solid var(--btnline);border-radius:16px;padding:22px 24px;color:var(--text);box-shadow:0 24px 64px rgba(0,0,0,.45);font-size:14px;line-height:1.5}
+#explain-panel h2{font:600 20px var(--f-head);margin:0 0 4px}
+#explain-panel .sub{color:var(--muted);margin:0 0 14px}
+#explain-panel ol{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:10px}
+#explain-panel li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+#explain-panel li i{width:24px;height:24px;border-radius:50%;background:var(--accent,#7CC4FF);color:#08111a;font:700 12px var(--f-head);font-style:normal;display:flex;align-items:center;justify-content:center}
+#explain-panel b{color:var(--strong)}
+#explain-panel .rules{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:6px;color:var(--soft)}
+#explain-panel .close{position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--btnline);color:var(--soft);border-radius:999px;padding:4px 12px;font:600 12px var(--f-body);cursor:pointer}
+#explain-panel .close:focus-visible{outline:2px solid var(--accent,#7CC4FF);outline-offset:2px}
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--btnline);color:var(--text);padding:12px 18px;border-radius:12px;font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;max-width:80vw}
 #toast.show{opacity:1}
 #toast.err{border-color:#FF6A4D}
@@ -182,6 +194,7 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 <body>
 <div id="viewport"><div id="stage" aria-live="off"></div></div>
 <aside id="drawer" aria-label="Wall settings" aria-hidden="true"></aside>
+<aside id="explain-panel" aria-label="How to read this wall" hidden></aside>
 <div id="toast" role="status"></div>
 <div id="dropzone">Drop a wall config, a feed, or both (.json) · nothing leaves your browser</div>
 <script>
@@ -409,26 +422,28 @@ function pushLog(feed, text, delta, tone) {
   S.log.unshift({ time: hhmmss(feedTime(feed)), text: text, delta: delta, tone: tone, seq: S.logSeq });
 }
 function addLog(prev, cur) {
+  // Lines are unshifted, so push the least important first: when the log is trimmed to
+  // maxItems, messages and connector movement go before number changes, and number
+  // changes before exceptions. Heroes outrank supporting rows.
   S.logSeq += 1;
   const typeLabel = (id) => { const t = S.config.exceptions.types.find((x) => x.id === id); return t ? t.label : id; };
-  const pIds = new Set((prev.exceptions || []).map((e) => e.id));
-  const cIds = new Set((cur.exceptions || []).map((e) => e.id));
-  (cur.exceptions || []).forEach((e) => { if (!pIds.has(e.id)) pushLog(cur, 'New ' + String(typeLabel(e.type)).toLowerCase() + ' exception · ' + e.text, 1, 'worse'); });
-  (prev.exceptions || []).forEach((e) => { if (!cIds.has(e.id)) pushLog(cur, 'Resolved · ' + e.text, -1, 'better'); });
-  Object.keys(S.ind).forEach((id) => {
-    const a = prev.values[id], b = cur.values[id];
-    if (a == null || b == null || a === b) return;
-    const def = S.ind[id].def;
-    pushLog(cur, S.ind[id].step.name + ' · ' + def.label, b - a, toneOf(b - a, def.goodDirection), def);
-  });
-  // Movement along connectors: one line per update, so it can't crowd out the numbers.
+  (cur.messages || []).forEach((m) => { if (!(prev.messages || []).some((x) => x.text === m.text)) pushLog(cur, m.text, null, m.tone || 'neutral'); });
   const moved = S.config.connectors.map((k) => {
     const fl = cur.flows && cur.flows[k.id];
     const n = fl && fl.sinceLastUpdate > 0 ? fl.sinceLastUpdate : 0;
     return n ? (k.caption || ((S.stepById[k.from] || {}).name + ' → ' + (S.stepById[k.to] || {}).name)) + ' +' + n.toLocaleString('en-US') : '';
   }).filter(Boolean);
   if (moved.length) pushLog(cur, 'Moved · ' + moved.join(', '), null, 'neutral');
-  (cur.messages || []).forEach((m) => { if (!(prev.messages || []).some((x) => x.text === m.text)) pushLog(cur, m.text, null, m.tone || 'neutral'); });
+  const changed = Object.keys(S.ind).filter((id) => { const a = prev.values[id], b = cur.values[id]; return a != null && b != null && a !== b; });
+  const isHero = (id) => S.ind[id].step.hero && S.ind[id].step.hero.id === id;
+  changed.filter((id) => !isHero(id)).concat(changed.filter(isHero)).forEach((id) => {
+    const a = prev.values[id], b = cur.values[id], def = S.ind[id].def;
+    pushLog(cur, S.ind[id].step.name + ' · ' + def.label, b - a, toneOf(b - a, def.goodDirection), def);
+  });
+  const pIds = new Set((prev.exceptions || []).map((e) => e.id));
+  const cIds = new Set((cur.exceptions || []).map((e) => e.id));
+  (prev.exceptions || []).forEach((e) => { if (!cIds.has(e.id)) pushLog(cur, 'Resolved · ' + e.text, -1, 'better'); });
+  (cur.exceptions || []).forEach((e) => { if (!pIds.has(e.id)) pushLog(cur, 'New ' + String(typeLabel(e.type)).toLowerCase() + ' exception · ' + e.text, 1, 'worse'); });
   S.log = S.log.slice(0, S.config.changeLog.maxItems || 6);
 }
 function toneOf(d, good) {
@@ -541,6 +556,7 @@ function renderHeader() {
     '<button class="btn primary hide-k" data-act="now">Update now</button>' +
     '<button class="btn hide-k" data-act="pause">' + (S.paused ? 'Resume' : 'Pause') + '</button>' +
     (S.pendingHandle ? '<button class="btn hide-k" data-act="resume">Resume watching ' + esc(S.pendingHandle.name) + '</button>' : '') +
+    '<button class="btn hide-k" data-act="explain" aria-label="How to read this wall">How to read</button>' +
     '<button class="btn hide-k" data-act="drawer" aria-label="Open settings">Source &amp; settings</button></div>' +
     '<div class="hrow hide-k" style="gap:20px">' +
     pillGroup('Refresh', refreshItems) + pillGroup('Δ since', deltaItems) + pillGroup('Layout', layoutItems) +
@@ -577,7 +593,7 @@ function footHint() {
   if (!el) return;
   const pace = S.source === 'demo' ? 'demo pace: every ' + demoPeriod() / 1000 + 's · drop your own config + feed to try it' :S.source === 'watch' ? 'checking file every ' + (currentPeriod() >= 60000 ? currentPeriod() / 60000 + ' min' : currentPeriod() / 1000 + 's') : '';
   const lay = S.layout === 'orbit' ? (S.pinned ? 'Layout pinned' : 'Arrange: drag blocks or the hub') : '';
-  el.textContent = [lay, pace, 'K hides controls · F full screen'].filter(Boolean).join(' · ');
+  el.textContent = [lay, pace, '? explains the wall · K hides controls · F full screen'].filter(Boolean).join(' · ');
 }
 
 /* ---------- geometry: lines, chevrons, flow labels ---------- */
@@ -751,6 +767,7 @@ function render(fromFeed) {
   renderStatus();
   footHint();
   if (fromFeed) restartProgress();
+  renderExplain();
 }
 function renderFlows() {
   const c = S.config;
@@ -1135,6 +1152,7 @@ stage.addEventListener('click', (e) => {
   else if (act === 'resume') resumeWatch();
   else if (act === 'pause') { S.paused = !S.paused; renderHeader(); schedule(); }
   else if (act === 'drawer') openDrawer(true);
+  else if (act === 'explain') toggleExplain();
   else if (act === 'refresh') { S.refresh = v === 'live' ? { mode: 'live', minutes: S.refresh.minutes } : { mode: 'interval', minutes: +v }; renderHeader(); schedule(); }
   else if (act === 'delta') { S.deltaMode = v; renderHeader(); render(false); }
   else if (act === 'layout') { S.layout = v; buildStage(); }
@@ -1145,8 +1163,56 @@ window.addEventListener('keydown', (e) => {
   if (e.target.closest && e.target.closest('input,textarea')) return;
   if (e.key === 'k' || e.key === 'K') { S.kiosk = !S.kiosk; stage.classList.toggle('kiosk', S.kiosk); }
   else if (e.key === 'f' || e.key === 'F') { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
-  else if (e.key === 'Escape') openDrawer(false);
+  else if (e.key === '?') toggleExplain();
+  else if (e.key === 'Escape') { openDrawer(false); if (S.explain) toggleExplain(false); }
 });
+
+/* ---------- explain overlay: '?' labels the real first block ---------- */
+const EXPLAIN_PARTS = [
+  ['Step &amp; name', 'Numbered, so the order reads at a glance from any distance.'],
+  ['State chip', 'Calm, Watch or Act. Grey by default; colour and a glowing frame only when the step needs eyes.'],
+  ['Hero number', 'The one figure that answers &ldquo;is this step OK?&rdquo;'],
+  ['Delta badge', '&uarr;/&darr; coloured by meaning, not direction: blue is better, orange is worse. Pulses once, then fades.'],
+  ['Indicator rows', 'Supporting counts, each with its own threshold dot.'],
+  ['Age vs target', 'How long the oldest item has waited, against its target.'],
+  ['Exceptions', 'Shown where they happen, as well as in their own panel.'],
+];
+function toggleExplain(on) {
+  S.explain = typeof on === 'boolean' ? on : !S.explain;
+  const panel = document.getElementById('explain-panel');
+  if (S.explain) {
+    panel.innerHTML =
+      '<button class="close" type="button" data-x="1">Close</button>' +
+      '<h2>How to read this wall</h2><p class="sub">The numbers point at the first block. Every block works the same way.</p>' +
+      '<ol>' + EXPLAIN_PARTS.map((p, i) => '<li><i>' + (i + 1) + '</i><span><b>' + p[0] + '</b><br>' + p[1] + '</span></li>').join('') + '</ol>' +
+      '<div class="rules">' +
+      '<span><b>Grey is normal.</b> Colour means look here.</span>' +
+      '<span><b>Connectors</b> show <b>+n &middot; total</b> when work moved, a muted total when it didn&rsquo;t, and turn amber with a tag when a handoff stalls.</span>' +
+      '<span><b>&Delta; since</b> compares with the last update or with the start of the ' + esc(S.config.display.delta.window || 'shift') + '.</span>' +
+      '<span><b>What changed</b> lists each update&rsquo;s changes, newest first. A missing feed shows <b>Stale</b>.</span>' +
+      '<span style="color:var(--muted)">Press ? or Esc to close.</span></div>';
+    panel.hidden = false;
+    const c = panel.querySelector('.close'); if (c) c.focus();
+  } else {
+    panel.hidden = true;
+  }
+  renderExplain();
+}
+function renderExplain() {
+  let layer = document.getElementById('explain-marks');
+  if (!S.explain || !S.config) { if (layer) layer.remove(); return; }
+  if (!layer) { layer = document.createElement('div'); layer.id = 'explain-marks'; layer.setAttribute('aria-hidden', 'true'); stage.appendChild(layer); }
+  const card = document.getElementById('card-' + S.config.steps[0].id);
+  if (!card) { layer.innerHTML = ''; return; }
+  const k = S.scale || 1, sr = stage.getBoundingClientRect(), cr = card.getBoundingClientRect();
+  const q = (sel) => card.querySelector(sel);
+  const left = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return [(cr.left - sr.left) / k, (r.top + r.height / 2 - sr.top) / k]; };
+  const right = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return [(r.right - sr.left) / k + 22, (r.top + r.height / 2 - sr.top) / k]; };
+  const hero = q('.hero .delta') ? right(q('.hero .delta')) : right(q('.hval'));
+  const spots = [left(q('.c-name')), right(q('.chip')), left(q('.hval')), hero, left(q('.rows .r')), left(q('.age')), right(q('.exb'))];
+  layer.innerHTML = spots.map((s, i) => s ? '<span class="mk" style="left:' + R(s[0]) + 'px;top:' + R(s[1]) + 'px">' + (i + 1) + '</span>' : '').join('');
+}
+document.getElementById('explain-panel').addEventListener('click', (e) => { if (e.target.closest('[data-x]')) toggleExplain(false); });
 
 /* ---------- drawer ---------- */
 function openDrawer(on) {

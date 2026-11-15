@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 — 2026-11-15
+
+- **`?` explains the wall.** Press **?** (or **How to read** in the header) and the wall puts numbered markers on its own first block, with a short guide to the seven parts, connectors, the Δ window, "What changed" and Stale. Esc closes it. Hidden in kiosk mode until the key is pressed.
+- **Anatomy page:** `anatomy.html`, also on the demo site, and its image in the README. The example is a code-review step; the "same pattern" rows are software delivery, order fulfilment, hiring and case reviews.
+- **"What changed" keeps what matters when an update is busy.** Exceptions first, then hero changes, then other numbers, then connector movement and messages; the log is trimmed from the bottom. Before, a busy update could trim away the hero change and the resolved exception.
+- **Skill**, from a second test on a portfolio of repositories: check steps against real data, ages over a portfolio, Row connects neighbours only, the wall's time zone for windows, shorter exception text with four or more types, private names, testing a threshold crossing in a copy of the config, and "if it isn't true, check the exporter's definitions before the thresholds".
+
 ## 0.2.1 — 2026-11-15
 
 Fixes found by testing the skill on a real process (an IntentCut video production pipeline), with a fresh agent that had only the skill and the repos.

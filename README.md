@@ -94,7 +94,9 @@ Schemas: [`schema/wall.config.schema.json`](schema/wall.config.schema.json) · [
 
 ## Anatomy of a block
 
-Each step is the same reusable unit:
+[![Anatomy of a WALL block: an example Review step in Act, with seven numbered parts, the rules for the wall, and the same pattern applied to software delivery, order fulfilment, hiring and case reviews.](media/anatomy.png)](https://semanticintent.github.io/wall-pattern/anatomy.html)
+
+Each step is the same reusable unit ([as a page](https://semanticintent.github.io/wall-pattern/anatomy.html)). On a live wall, press **?** or **How to read** to put these numbers on the wall's own first block:
 
 1. **Step & name**, numbered, so the order reads at a glance.
 2. **State chip**: Calm, Watch or Act. Colour and a glowing frame appear only above Calm.
@@ -134,7 +136,7 @@ index.html?config=CONFIG_URL&feed=FEED_URL&layout=orbit&pin=1&kiosk=1
 | `pin=1` | lock block positions |
 | `kiosk=1` | hide the controls (press **K** to toggle) |
 
-Keys: **K** shows or hides the controls · **F** toggles full screen · **Esc** closes settings.
+Keys: **?** explains the wall (numbers on the first block, plus a short guide) · **K** shows or hides the controls · **F** toggles full screen · **Esc** closes settings and the guide.
 
 ## Feeding it from a business system
 
@@ -157,6 +159,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 
 ```
 index.html                       the renderer: self-contained, no build step
+anatomy.html                     the anatomy of a block, as a page
 CHANGELOG.md                     what changed in each version
 skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/

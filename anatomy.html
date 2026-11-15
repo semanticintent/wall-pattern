@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anatomy of a WALL block</title>
+<link rel="icon" type="image/svg+xml" href="glyph/wall-pattern-amber.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Same tokens as the renderer (index.html), dark theme. */
+:root{
+  --bg:#0A0E13;--surface:#111821;--surface2:#16202B;--line:#223040;--btnline:#2B3B4D;
+  --text:#E9EEF3;--strong:#F4F7FA;--muted:#93A1B2;--soft:#B8C4D1;--faint:#6E7C8C;
+  --accent:#63B3FF;--calm:#6E7C8C;--watch:#F2C14E;--act:#FF6A4D;--better:#7CC4FF;--worse:#FF9A5C;
+  --f-head:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--f-body)}
+.wrap{max-width:1680px;margin:0 auto;padding:72px max(24px,4vw) 64px}
+.eyebrow{font:600 13px var(--f-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(34px,4.4vw,56px)/1.05 var(--f-head);letter-spacing:-.01em;margin:14px 0 14px;color:var(--strong)}
+.lede{max-width:72ch;color:var(--soft);font-size:17px;margin:0 0 48px}
+.grid{display:grid;grid-template-columns:minmax(300px,440px) minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:start}
+h2{font:600 26px var(--f-head);margin:0 0 20px;color:var(--strong)}
+h3{font:600 12px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+
+/* the example block, drawn like the renderer's row card */
+.card{position:relative;background:var(--surface);border:1.5px solid rgba(255,106,77,.75);border-radius:18px;padding:30px 30px 26px;
+  box-shadow:0 0 0 4px rgba(255,106,77,.10),0 0 48px rgba(255,106,77,.14)}
+.c-top{display:flex;justify-content:space-between;align-items:center}
+.c-num{font:500 14px var(--f-mono);color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:999px;font:700 13px var(--f-body);letter-spacing:.06em;color:#FF9A85;background:rgba(255,106,77,.16)}
+.chip i{width:7px;height:7px;border-radius:50%;background:var(--act)}
+.c-name{font:600 26px/1.2 var(--f-head);margin-top:22px}
+.c-sub{color:var(--muted);font-size:15px;margin-top:4px}
+.hero{margin-top:26px;display:flex;align-items:center;gap:14px}
+.hval{font:600 72px/1 var(--f-head);color:var(--strong);font-variant-numeric:tabular-nums}
+.delta{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font:700 15px var(--f-head)}
+.delta.worse{color:var(--worse);background:rgba(255,154,92,.16)}
+.delta.better{color:var(--better);background:rgba(99,179,255,.14)}
+.hcap{color:var(--muted);font-size:15px;margin-top:10px}
+.sep{height:1px;background:var(--line);margin:22px 0 14px}
+.r{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:17px}
+.r .l{display:flex;align-items:center;gap:10px}
+.r .n{font:600 20px var(--f-head);font-variant-numeric:tabular-nums;color:var(--strong)}
+.r .v{display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--watch)}
+.age{margin-top:30px;color:var(--muted);font-size:14px}
+.age.over{color:#FFB37A}
+.exb{display:inline-block;margin-top:12px;padding:5px 12px;border-radius:999px;background:rgba(255,106,77,.14);color:#FF9A85;font:600 14px var(--f-body)}
+.mk{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--accent);color:#08111a;
+  font:700 14px var(--f-head);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(99,179,255,.22)}
+
+/* parts and rules */
+ol.parts{list-style:none;margin:0;padding:0;display:grid;gap:22px}
+ol.parts li{display:grid;grid-template-columns:32px 1fr;gap:14px}
+ol.parts li i{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#08111a;font:700 14px var(--f-head);font-style:normal;display:flex;align-items:center;justify-content:center}
+ol.parts b,.rules b{color:var(--strong)}
+ol.parts span{color:var(--soft)}
+.rules{display:grid;gap:10px;color:var(--soft);margin:0 0 36px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.st{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:14px;color:var(--text)}
+.st i{width:7px;height:7px;border-radius:50%;background:var(--calm)}
+.st.watch{border-color:rgba(242,193,78,.6)} .st.watch i{background:var(--watch)}
+.st.act{border-color:rgba(255,106,77,.65)} .st.act i{background:var(--act)}
+.flow .sep2{color:var(--faint)}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 24px}
+.foot a{color:var(--accent);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+@media (max-width:1200px){.grid{grid-template-columns:minmax(0,440px) minmax(0,1fr)}.grid>.col-rules{grid-column:1 / -1}}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr);gap:40px}.wrap{padding-top:40px}.card{margin:0 18px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">WALL Pattern · the block</div>
+  <h1>Anatomy of a WALL block</h1>
+  <p class="lede">One reusable unit. Put a few in a row, join them with connectors that carry counts, and any process becomes a wall you can read from across the room. On a live wall, press <b>?</b> to put these numbers on the wall's own first block.</p>
+
+  <div class="grid">
+    <!-- The example: a code-review step, in Act -->
+    <div class="card" aria-label="Example block: the Review step of a software delivery wall, in the Act state">
+      <div class="c-top"><span class="c-num">03</span><span class="chip"><i></i>ACT</span></div>
+      <div class="c-name">Review</div>
+      <div class="c-sub">Pull requests waiting for a reviewer</div>
+      <div class="hero"><span class="hval">27</span><span class="delta worse">↑3</span></div>
+      <div class="hcap">Waiting over 2 days</div>
+      <div class="sep"></div>
+      <div class="r"><span class="l">Opened this week</span><span class="v"><span class="n">186</span></span></div>
+      <div class="r"><span class="l">Approved today</span><span class="v"><span class="delta worse">↓2</span><span class="n">19</span></span></div>
+      <div class="r"><span class="l"><span class="dot"></span>Changes requested</span><span class="v"><span class="n">13</span></span></div>
+      <div class="age over">Oldest waiting 12d · target 2d</div>
+      <span class="exb">2 exceptions</span>
+
+      <!-- numbered markers, placed by measuring the parts (script at the end) -->
+      <span class="mk" data-for=".c-name" data-side="left">1</span>
+      <span class="mk" data-for=".chip" data-side="right">2</span>
+      <span class="mk" data-for=".hval" data-side="left">3</span>
+      <span class="mk" data-for=".hero .delta" data-side="right">4</span>
+      <span class="mk" data-for=".r" data-side="left">5</span>
+      <span class="mk" data-for=".age" data-side="left">6</span>
+      <span class="mk" data-for=".exb" data-side="right">7</span>
+    </div>
+
+    <section aria-labelledby="parts-h">
+      <h2 id="parts-h">Parts of a block</h2>
+      <ol class="parts">
+        <li><i>1</i><div><b>Step &amp; name</b><br><span>Numbered, so the order reads at a glance from any distance.</span></div></li>
+        <li><i>2</i><div><b>State chip</b><br><span>Calm, Watch or Act. Grey by default; colour and the glowing frame only when the step needs eyes.</span></div></li>
+        <li><i>3</i><div><b>Hero number</b><br><span>The one figure that answers &ldquo;is this step OK?&rdquo;</span></div></li>
+        <li><i>4</i><div><b>Delta badge</b><br><span>&uarr;/&darr; coloured by meaning, not direction: blue is better, orange is worse. Here fewer approvals is worse. Pulses once on change, then fades.</span></div></li>
+        <li><i>5</i><div><b>Indicator rows</b><br><span>Supporting counts, each with its own threshold dot.</span></div></li>
+        <li><i>6</i><div><b>Age vs target</b><br><span>How long the oldest item has waited, against the target.</span></div></li>
+        <li><i>7</i><div><b>Exception badge</b><br><span>Exceptions show where they happen, not only in their own panel.</span></div></li>
+      </ol>
+    </section>
+
+    <section class="col-rules" aria-labelledby="rules-h">
+      <h2 id="rules-h">Rules for the wall</h2>
+      <div class="rules">
+        <span><b>Readable from four metres.</b> Big numbers, few words.</span>
+        <span><b>Grey is normal.</b> Colour means &ldquo;look here&rdquo;.</span>
+        <span><b>Draw the flow.</b> Connectors carry counts, stay quiet when nothing moved, and turn amber when a handoff stalls.</span>
+        <span><b>Show it&rsquo;s alive.</b> A heartbeat and an &ldquo;updated&rdquo; time; a missing feed shows <b>Stale</b>.</span>
+        <span><b>Fix the &Delta; baseline.</b> Since the last update, or since the start of the shift, day or week.</span>
+        <span><b>Gentle motion.</b> One pulse per change; reduced-motion settings are respected.</span>
+      </div>
+
+      <h2>Same pattern, any process</h2>
+      <h3>Software delivery</h3>
+      <div class="flow"><span class="st"><i></i>Backlog</span><span class="sep2">›</span><span class="st"><i></i>Build</span><span class="sep2">›</span><span class="st act"><i></i>Review</span><span class="sep2">›</span><span class="st"><i></i>Release</span><span class="sep2">›</span><span class="st"><i></i>Monitor</span></div>
+      <h3>Order fulfilment</h3>
+      <div class="flow"><span class="st"><i></i>Ordered</span><span class="sep2">›</span><span class="st"><i></i>Picked</span><span class="sep2">›</span><span class="st watch"><i></i>Packed</span><span class="sep2">›</span><span class="st"><i></i>Shipped</span><span class="sep2">›</span><span class="st"><i></i>Delivered</span></div>
+      <h3>Hiring</h3>
+      <div class="flow"><span class="st"><i></i>Sourced</span><span class="sep2">›</span><span class="st"><i></i>Screened</span><span class="sep2">›</span><span class="st watch"><i></i>Interview</span><span class="sep2">›</span><span class="st"><i></i>Offer</span><span class="sep2">›</span><span class="st"><i></i>Onboarded</span></div>
+      <h3>Case reviews</h3>
+      <div class="flow"><span class="st"><i></i>Library</span><span class="sep2">›</span><span class="st"><i></i>Scheduled</span><span class="sep2">›</span><span class="st watch"><i></i>Due</span><span class="sep2">›</span><span class="st"><i></i>Reviewed</span></div>
+    </section>
+  </div>
+
+  <div class="foot">
+    <span>WALL Pattern · Workflow At-a-glance, Live &amp; Legible</span>
+    <a href="./">Live demo</a>
+    <a href="https://github.com/semanticintent/wall-pattern">github.com/semanticintent/wall-pattern</a>
+    <a href="https://doi.org/10.5281/zenodo.24244635">DOI 10.5281/zenodo.24244635</a>
+  </div>
+</main>
+<script>
+// Put each marker on the card's left edge (or just right of its part), centred on the part.
+function placeMarkers() {
+  const card = document.querySelector('.card'), cr = card.getBoundingClientRect();
+  card.querySelectorAll('.mk').forEach((m) => {
+    const el = card.querySelector(m.dataset.for);
+    if (!el) { m.hidden = true; return; }
+    const r = el.getBoundingClientRect();
+    m.style.left = (m.dataset.side === 'left' ? 0 : r.right - cr.left + 22) + 'px';
+    m.style.top = (r.top + r.height / 2 - cr.top) + 'px';
+  });
+}
+placeMarkers();
+window.addEventListener('resize', placeMarkers);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeMarkers);
+</script>
+</body>
+</html>
