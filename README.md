@@ -9,6 +9,10 @@ One HTML file, one config, one feed. Any process becomes a live wall of connecte
 
 `PATTERN · FORMAT · RENDERER` · MIT · 2026 · [Semantic Intent](https://semanticintent.dev) · [DOI 10.5281/zenodo.24244635](https://doi.org/10.5281/zenodo.24244635)
 
+![A Fernhill Provisions wall after two snapshots five minutes apart. Every step is grey except Inventory, whose hero rose by 8 to 22 and crossed into Act; the Orders to Inventory handoff has turned amber with a SHORT tag; What changed lists the rise and the connector movement.](media/two-snapshots.png)
+
+*Two feed snapshots, five minutes apart. The source reported only what was true each time; the wall worked out the rest. Inventory rose by 8 and crossed into **Act**, the handoff into it stalled (**SHORT**), and "What changed" lists exactly that. Everything else stayed grey.*
+
 ---
 
 ## Why
