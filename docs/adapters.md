@@ -66,7 +66,9 @@ A wall for **any public GitHub repository** (opened → in review → merged →
 
 Adapters still assume someone writes JavaScript. Many people who would want a wall write none, but already keep a spreadsheet: a team lead updating counts at standup, a supervisor exporting a report at the end of a shift.
 
-The smallest bridge to them is a **two-column CSV** that the renderer accepts next to JSON:
+**Works today, with a converter:** a `wall` tab saved as CSV, turned into a feed by a small script. See [`examples/repair-desk/`](../examples/repair-desk/) and the chat-assistant guide, [`for-assistants.md`](for-assistants.md).
+
+The proposal removes the script. The smallest bridge is a **two-column CSV** that the renderer accepts next to JSON:
 
 ```csv
 id,value

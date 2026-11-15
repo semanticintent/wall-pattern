@@ -51,6 +51,10 @@ Nothing is uploaded: the files are read in your browser and never leave it. To t
 
 [`skills/wall-pattern/SKILL.md`](skills/wall-pattern/SKILL.md) is a skill for Claude (or any agent that reads skills). It interviews you about the process, writes the config, writes a feed exporter in your own stack, and tests the result with two snapshots. It carries what the schemas can't: one hero number per step, thresholds that keep an ordinary day grey, and flows that need memory so the first run doesn't report the whole backlog as new. In Claude Code, copy the folder into your project's `.claude/skills/`; on claude.ai, upload it as a skill.
 
+### Build one with any chat assistant
+
+Using Microsoft Copilot, ChatGPT, Gemini or another chat assistant? Give it [`docs/for-assistants.md`](docs/for-assistants.md): paste it in or attach it, then describe your process or share a sample of your data. It is one self-contained file with the format, the rules, a spreadsheet-to-feed converter and a worked example ([`examples/repair-desk/`](examples/repair-desk/)), so the assistant can draft the config, write the spreadsheet formulas and help you schedule the update. In an organisation it can be added as a knowledge file to a custom assistant.
+
 ## The two files
 
 WALL Pattern separates **structure** from **numbers**.
@@ -161,6 +165,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 index.html                       the renderer: self-contained, no build step
 anatomy.html                     the anatomy of a block, as a page
 CHANGELOG.md                     what changed in each version
+docs/for-assistants.md           one-file guide for any chat assistant (Copilot, ChatGPT, …)
 docs/adapters.md                 design note: adapters, spreadsheets, setup agent (proposed)
 skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/
@@ -169,6 +174,7 @@ schema/
 examples/
   fernhill-provisions/           order to cash: five steps, backorder loop, exceptions hub
   hiring-pipeline/               four steps, light theme, return loop
+  repair-desk/                   fed from a spreadsheet tab: CSV + a stdlib Python converter
 glyph/
   wall-pattern.svg               the mark (currentColor), for pages
   wall-pattern-amber.svg         the same mark in amber, for this README
@@ -190,7 +196,8 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | Watch a local feed file (re-read on each refresh, no server) | working in Chrome and Edge; other browsers fall back to drop-in files |
 | Delta window: `shift`, `day` or `week` (v0.2) | working; without a feed baseline, the wall resets its own on the first snapshot of each new window |
 | Adapters: map an existing endpoint to a feed, in the browser or at the edge | proposed, not implemented; see [docs/adapters.md](docs/adapters.md) |
-| Spreadsheet input (two-column CSV) and a setup agent for people without a coding workflow | proposed, not implemented; see [docs/adapters.md](docs/adapters.md#spreadsheets-without-writing-code) |
+| Spreadsheet input via a converter (a `wall` tab saved as CSV → feed) | working; see [examples/repair-desk/](examples/repair-desk/) and [docs/for-assistants.md](docs/for-assistants.md) |
+| CSV read directly by the renderer, and a setup agent for people without a coding workflow | proposed, not implemented; see [docs/adapters.md](docs/adapters.md#spreadsheets-without-writing-code) |
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.

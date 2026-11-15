@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "wallId": "repair-desk",
+  "generatedAt": "2026-11-15T17:19:14-05:00",
+  "sequence": 1,
+  "values": {
+    "waiting": 9,
+    "received-today": 14,
+    "in-repair": 11,
+    "waiting-parts": 2,
+    "ready-count": 6,
+    "picked-up-today": 8,
+    "uncollected": 1
+  },
+  "ages": {
+    "repair": {
+      "oldestHours": 30
+    }
+  },
+  "exceptions": [
+    {
+      "id": "parts-R1042",
+      "type": "parts",
+      "step": "repair",
+      "text": "R-1042 · screen 5d late"
+    },
+    {
+      "id": "cust-R0988",
+      "type": "customer",
+      "step": "ready",
+      "text": "R-0988 · 3 calls no answer"
+    }
+  ]
+}

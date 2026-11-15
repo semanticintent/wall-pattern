@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0",
+  "id": "repair-desk",
+  "title": "Repair Desk",
+  "eyebrow": "WALL PATTERN · FED FROM A SPREADSHEET",
+  "display": {
+    "layout": "row",
+    "refresh": {
+      "mode": "live",
+      "staleAfterMinutes": 90
+    },
+    "delta": {
+      "window": "day"
+    }
+  },
+  "steps": [
+    {
+      "id": "received",
+      "name": "Received",
+      "hero": {
+        "id": "waiting",
+        "label": "Waiting to start",
+        "goodDirection": "down",
+        "thresholds": {
+          "watch": 15,
+          "act": 25
+        }
+      },
+      "indicators": [
+        {
+          "id": "received-today",
+          "label": "Received today",
+          "goodDirection": "neutral",
+          "cumulative": true
+        }
+      ]
+    },
+    {
+      "id": "repair",
+      "name": "In repair",
+      "hero": {
+        "id": "in-repair",
+        "label": "On the bench",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "waiting-parts",
+          "label": "Waiting for parts",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 3,
+            "act": 6
+          }
+        }
+      ],
+      "age": {
+        "label": "Oldest on bench",
+        "targetHours": 48
+      }
+    },
+    {
+      "id": "ready",
+      "name": "Ready for pickup",
+      "hero": {
+        "id": "ready-count",
+        "label": "Ready",
+        "goodDirection": "neutral"
+      },
+      "indicators": [
+        {
+          "id": "picked-up-today",
+          "label": "Picked up today",
+          "goodDirection": "up",
+          "cumulative": true
+        },
+        {
+          "id": "uncollected",
+          "label": "Uncollected 7d+",
+          "goodDirection": "down",
+          "thresholds": {
+            "watch": 2,
+            "act": 5
+          }
+        }
+      ]
+    }
+  ],
+  "connectors": [
+    {
+      "id": "received-repair",
+      "from": "received",
+      "to": "repair",
+      "caption": "started",
+      "showFlow": false,
+      "stallWhen": {
+        "step": "repair",
+        "stateAtLeast": "act"
+      },
+      "stallCaption": "backing up"
+    },
+    {
+      "id": "repair-ready",
+      "from": "repair",
+      "to": "ready",
+      "caption": "fixed",
+      "showFlow": false
+    }
+  ],
+  "exceptions": {
+    "types": [
+      {
+        "id": "parts",
+        "label": "Parts overdue"
+      },
+      {
+        "id": "customer",
+        "label": "Customer unreachable"
+      }
+    ],
+    "thresholds": {
+      "watch": 3,
+      "act": 6
+    }
+  }
+}
