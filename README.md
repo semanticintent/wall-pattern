@@ -33,7 +33,13 @@ open index.html
 That's it. The wall opens on the **Fernhill Provisions** example, a fictional food wholesaler, with simulated data:
 Orders → Inventory → Fulfilment → Shipping → Invoicing, with backordered lines looping back to Orders.
 
-To use your own process, open **Source & settings**, or drop a `wall.config.json` or `wall.feed.json` anywhere on the page.
+### Try your own, in the browser
+
+1. Open the [live demo](https://semanticintent.github.io/wall-pattern/).
+2. Drag your `wall.config.json` and `wall.feed.json` onto the page, together or one at a time.
+3. Drop a second feed snapshot to see what changed between the two.
+
+Nothing is uploaded: the files are read in your browser and never leave it. To try it without writing anything, download the files from [`examples/hiring-pipeline/`](examples/hiring-pipeline/) and drop them in. **Source & settings** offers the same as file pickers, plus watching a feed file that a system rewrites on a schedule.
 
 ## The two files
 

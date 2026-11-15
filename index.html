@@ -179,7 +179,7 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 <div id="viewport"><div id="stage" aria-live="off"></div></div>
 <aside id="drawer" aria-label="Wall settings" aria-hidden="true"></aside>
 <div id="toast" role="status"></div>
-<div id="dropzone">Drop a wall config or feed (.json)</div>
+<div id="dropzone">Drop a wall config, a feed, or both (.json) · nothing leaves your browser</div>
 <script>
 const DEFAULT_CONFIG = {"schemaVersion": "1.0", "id": "fernhill-provisions", "title": "Fernhill Provisions", "eyebrow": "WALL PATTERN · ORDER TO CASH", "display": {"layout": "orbit", "theme": "dark", "canvas": {"width": 1920, "height": 1080}, "refresh": {"mode": "live", "options": [5, 10, 20], "staleAfterMinutes": 15}, "delta": {"baseline": "lastUpdate", "shiftStart": "07:00", "fadeSeconds": 14}, "motion": {"pulseOnChange": true, "flowDots": true, "respectReducedMotion": true}, "layoutPinned": false}, "states": [{"id": "calm", "label": "Calm", "color": "#6E7C8C"}, {"id": "watch", "label": "Watch", "color": "#F2C14E"}, {"id": "act", "label": "Act", "color": "#FF6A4D", "glow": true}], "loops": [{"id": "loop1", "name": "Order to cash", "color": "#34475C", "lineStyle": "solid"}, {"id": "loop2", "name": "Backorders → Orders", "color": "#4F86B5", "lineStyle": "dashed"}], "steps": [{"id": "orders", "order": 1, "name": "Orders", "subtitle": "New & confirmed orders", "loop": "loop1", "hero": {"id": "o_new", "label": "New orders today", "goodDirection": "up", "cumulative": true}, "indicators": [{"id": "o_pend", "label": "Awaiting confirmation", "goodDirection": "down", "thresholds": {"watch": 25, "act": 40}}, {"id": "o_credit", "label": "Credit hold", "goodDirection": "down", "thresholds": {"watch": 5, "act": 9}}, {"id": "o_req", "label": "Required this week", "goodDirection": "neutral"}], "compactIndicators": ["o_pend", "o_credit"], "age": {"label": "Oldest unconfirmed", "targetHours": 24}, "position": {"x": 500, "y": 410}}, {"id": "stock", "order": 2, "name": "Inventory", "subtitle": "Stock vs reorder levels", "loop": "loop1", "hero": {"id": "s_low", "label": "Products below reorder level", "caption": "of 240", "goodDirection": "down", "thresholds": {"watch": 12, "act": 20}}, "indicators": [{"id": "s_out", "label": "Out of stock", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}, {"id": "s_po", "label": "Purchase orders open", "goodDirection": "neutral"}, {"id": "s_disc", "label": "Discontinued on order", "goodDirection": "down", "thresholds": {"watch": 1, "act": 3}}], "compactIndicators": ["s_out", "s_po"], "age": {"label": "Oldest open PO", "targetHours": 168}, "position": {"x": 960, "y": 290}}, {"id": "pick", "order": 3, "name": "Fulfilment", "subtitle": "Picking & packing", "loop": "loop1", "hero": {"id": "f_lines", "label": "Order lines to pick", "goodDirection": "neutral"}, "indicators": [{"id": "f_short", "label": "Short picks", "goodDirection": "down", "thresholds": {"watch": 4, "act": 8}}, {"id": "f_packed", "label": "Orders packed today", "goodDirection": "up", "cumulative": true}, {"id": "f_backord", "label": "Lines backordered", "goodDirection": "down", "thresholds": {"watch": 10, "act": 18}}], "compactIndicators": ["f_short", "f_packed"], "age": {"label": "Oldest unpicked", "targetHours": 8}, "position": {"x": 1420, "y": 410}}, {"id": "ship", "order": 4, "name": "Shipping", "subtitle": "Ridgeway · Kestrel · Coastline", "loop": "loop1", "hero": {"id": "sh_ready", "label": "Ready to ship", "goodDirection": "down", "thresholds": {"watch": 40, "act": 60}}, "indicators": [{"id": "sh_done", "label": "Shipped today", "goodDirection": "up", "cumulative": true}, {"id": "sh_late", "label": "Past required date", "goodDirection": "down", "thresholds": {"watch": 5, "act": 10}}, {"id": "sh_held", "label": "Held at dock", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}], "compactIndicators": ["sh_done", "sh_late"], "age": {"label": "Oldest at dock", "targetHours": 24}, "position": {"x": 1250, "y": 820}}, {"id": "bill", "order": 5, "name": "Invoicing", "subtitle": "Invoices & payments", "loop": "loop1", "hero": {"id": "b_open", "label": "Unpaid invoices", "goodDirection": "down", "thresholds": {"watch": 70, "act": 95}}, "indicators": [{"id": "b_sent", "label": "Invoiced today", "goodDirection": "up", "cumulative": true}, {"id": "b_over", "label": "Overdue > 30 days", "goodDirection": "down", "thresholds": {"watch": 8, "act": 15}}, {"id": "b_disp", "label": "Disputed", "goodDirection": "down", "thresholds": {"watch": 3, "act": 6}}], "compactIndicators": ["b_sent", "b_over"], "age": {"label": "Oldest unpaid", "targetHours": 720}, "position": {"x": 670, "y": 820}}], "connectors": [{"id": "c1", "from": "orders", "to": "stock", "caption": "allocated", "loop": "loop1", "stallWhen": {"step": "stock", "stateAtLeast": "act"}, "stallCaption": "short"}, {"id": "c2", "from": "stock", "to": "pick", "caption": "released", "loop": "loop1"}, {"id": "c3", "from": "pick", "to": "ship", "caption": "packed", "loop": "loop1", "stallWhen": {"step": "pick", "stateAtLeast": "act"}, "stallCaption": "slow"}, {"id": "c4", "from": "ship", "to": "bill", "caption": "invoiced", "loop": "loop1"}, {"id": "c5", "from": "ship", "to": "orders", "caption": "backordered lines re-released", "loop": "loop2", "route": "outside"}], "exceptions": {"enabled": true, "title": "Exceptions", "placement": "hub", "types": [{"id": "ops", "label": "Operations", "shortLabel": "Ops"}, {"id": "sys", "label": "Systems", "shortLabel": "Sys"}, {"id": "cus", "label": "Customer", "shortLabel": "Cust"}], "thresholds": {"watch": 15, "act": 25}, "showOnSteps": true}, "changeLog": {"enabled": true, "maxItems": 6}};
 const DEFAULT_FEED = {"schemaVersion": "1.0", "wallId": "fernhill-provisions", "generatedAt": "2026-11-14T13:53:56-05:00", "sequence": 412, "values": {"o_new": 38, "o_pend": 22, "o_credit": 4, "o_req": 61, "s_low": 14, "s_out": 2, "s_po": 9, "s_disc": 1, "f_lines": 146, "f_short": 5, "f_packed": 31, "f_backord": 12, "sh_ready": 34, "sh_done": 27, "sh_late": 6, "sh_held": 1, "b_open": 82, "b_sent": 24, "b_over": 9, "b_disp": 2}, "baseline": {"at": "2026-11-14T07:00:00-05:00", "values": {"o_new": 0, "o_pend": 25, "o_credit": 4, "o_req": 61, "s_low": 13, "s_out": 2, "s_po": 9, "s_disc": 1, "f_lines": 152, "f_short": 5, "f_packed": 0, "f_backord": 12, "sh_ready": 31, "sh_done": 0, "sh_late": 4, "sh_held": 1, "b_open": 79, "b_sent": 0, "b_over": 9, "b_disp": 2}}, "ages": {"orders": {"oldestHours": 30}, "stock": {"oldestHours": 190}, "pick": {"oldestHours": 6}, "ship": {"oldestHours": 20}, "bill": {"oldestHours": 1010}}, "flows": {"c1": {"sinceLastUpdate": 2, "sinceShiftStart": 41}, "c2": {"sinceLastUpdate": 3, "sinceShiftStart": 37}, "c3": {"sinceLastUpdate": 1, "sinceShiftStart": 31}, "c4": {"sinceLastUpdate": 0, "sinceShiftStart": 24}, "c5": {"sinceLastUpdate": 1, "sinceShiftStart": 9}}, "exceptions": [{"id": "NW-3107", "type": "ops", "step": "stock", "text": "Supplier late — Alder Creek Dairy, PO 4412"}, {"id": "NW-3104", "type": "sys", "step": "ship", "text": "Tracking sync failed — Coastline Freight"}, {"id": "NW-3101", "type": "cus", "step": "orders", "text": "Credit limit exceeded — Customer C-1042"}, {"id": "NW-3098", "type": "ops", "step": "pick", "text": "Short pick — Rye flour 25 kg, bin A-12"}, {"id": "NW-3095", "type": "ops", "step": "orders", "text": "Address check failed — Order 50418"}, {"id": "NW-3092", "type": "cus", "step": "bill", "text": "Invoice disputed — Customer C-2217"}, {"id": "NW-3090", "type": "ops", "step": "stock", "text": "Discontinued product on order — Order 50472"}, {"id": "NW-3087", "type": "sys", "step": "pick", "text": "Label printer offline — Dock 2"}, {"id": "NW-3083", "type": "ops", "step": "ship", "text": "Missed pickup — Ridgeway Couriers"}, {"id": "NW-3080", "type": "ops", "step": "pick", "text": "Damaged stock — Maple syrup, 6 cases"}, {"id": "NW-3077", "type": "cus", "step": "ship", "text": "Delivery refused — Customer C-3380"}, {"id": "NW-3074", "type": "ops", "step": "stock", "text": "Reorder level breached — Aged cheddar 5 kg"}], "messages": [{"text": "Bayside Growers shipment received — 14 products restocked", "step": "stock", "tone": "better"}]};
@@ -518,6 +518,7 @@ function renderStatus() {
   if (S.paused) { state = 'off'; label = 'Paused'; }
   const staleMin = c.display.refresh.staleAfterMinutes;
   if (!S.paused && S.feed && staleMin && (Date.now() - feedTime(S.feed).getTime()) / 60000 > staleMin) { state = 'off'; label = 'Stale'; }
+  if (!S.paused && S.source === 'file') { state = 'off'; label = 'Snapshot'; }
   if (S.error) { state = 'err'; label = 'Feed error'; }
   if (!S.feed) { state = 'off'; label = 'Waiting for feed'; }
   const src = S.source === 'demo' ? 'Demo data' : S.source === 'url' ? 'Feed: ' + (S.feedUrl.replace(/^https?:\/\//, '').slice(0, 28)) : S.source === 'watch' && S.fileHandle ? 'Watching: ' + S.fileHandle.name : 'File';
@@ -536,7 +537,7 @@ function renderFooter() {
 function footHint() {
   const el = $('#foothint');
   if (!el) return;
-  const pace = S.source === 'demo' ? 'demo pace: every ' + demoPeriod() / 1000 + 's' : S.source === 'watch' ? 'checking file every ' + (currentPeriod() >= 60000 ? currentPeriod() / 60000 + ' min' : currentPeriod() / 1000 + 's') : '';
+  const pace = S.source === 'demo' ? 'demo pace: every ' + demoPeriod() / 1000 + 's · drop your own config + feed to try it' :S.source === 'watch' ? 'checking file every ' + (currentPeriod() >= 60000 ? currentPeriod() / 60000 + ' min' : currentPeriod() / 1000 + 's') : '';
   const lay = S.layout === 'orbit' ? (S.pinned ? 'Layout pinned' : 'Arrange: drag blocks or the hub') : '';
   el.textContent = [lay, pace, 'K hides controls · F full screen'].filter(Boolean).join(' · ');
 }
@@ -1144,12 +1145,19 @@ drawer.addEventListener('change', (e) => {
   readFile(inp.files[0], inp.dataset.d === 'cfgfile' ? 'config' : 'feed');
   inp.value = '';
 });
+const isConfigJSON = (j) => !!(j && Array.isArray(j.steps));
 function readFile(file, hint) {
   const fr = new FileReader();
   fr.onload = () => {
     let j;
     try { j = JSON.parse(fr.result); } catch (err) { toast('That file is not valid JSON.', true); return; }
-    const kind = j && Array.isArray(j.steps) ? 'config' : j && j.values ? 'feed' : hint;
+    applyLoaded(j, hint);
+  };
+  fr.readAsText(file);
+}
+function applyLoaded(j, hint) {
+  {
+    const kind = isConfigJSON(j) ? 'config' : j && j.values ? 'feed' : hint;
     if (kind === 'config') {
       if (applyConfig(j)) { toast('Loaded wall: ' + j.title); if (S.source === 'url' && S.feedUrl) startUrl(S.feedUrl); else if (S.source === 'watch' && S.fileHandle) startWatch(S.fileHandle); else startDemo(); }
     } else {
@@ -1162,8 +1170,7 @@ function readFile(file, hint) {
       toast('Loaded feed snapshot' + (j.generatedAt ? ' from ' + hhmmss(feedTime(j)) : '') + '. Load another to see what changed.');
     }
     openDrawer(false);
-  };
-  fr.readAsText(file);
+  }
 }
 let dragDepth = 0;
 window.addEventListener('dragenter', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) { dragDepth++; $('#dropzone').classList.add('on'); } });
@@ -1171,8 +1178,16 @@ window.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth -
 window.addEventListener('dragover', (e) => e.preventDefault());
 window.addEventListener('drop', (e) => {
   e.preventDefault(); dragDepth = 0; $('#dropzone').classList.remove('on');
-  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (f) readFile(f, 'feed');
+  // Several files at once: configs first, then feeds, so a config + feed pair lands in the right order.
+  const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+  if (!files.length) return;
+  Promise.all(files.map((f) => f.text().then((t) => { try { return JSON.parse(t); } catch (err) { return null; } }, () => null)))
+    .then((list) => {
+      const ok = list.filter(Boolean);
+      const bad = list.length - ok.length;
+      ok.filter(isConfigJSON).concat(ok.filter((j) => !isConfigJSON(j))).forEach((j) => applyLoaded(j, 'feed'));
+      if (bad) toast(bad === 1 ? 'One file is not valid JSON.' : bad + ' files are not valid JSON.', true);
+    });
 });
 setInterval(renderStatus, 5000);
 
