@@ -43,6 +43,10 @@ Orders → Inventory → Fulfilment → Shipping → Invoicing, with backordered
 
 Nothing is uploaded: the files are read in your browser and never leave it. To try it without writing anything, download the files from [`examples/hiring-pipeline/`](examples/hiring-pipeline/) and drop them in. **Source & settings** offers the same as file pickers, plus watching a feed file that a system rewrites on a schedule.
 
+### Build one with an agent
+
+[`skills/wall-pattern/SKILL.md`](skills/wall-pattern/SKILL.md) is a skill for Claude (or any agent that reads skills). It interviews you about the process, writes the config, writes a feed exporter in your own stack, and tests the result with two snapshots. It carries what the schemas can't: one hero number per step, thresholds that keep an ordinary day grey, and flows that need memory so the first run doesn't report the whole backlog as new. In Claude Code, copy the folder into your project's `.claude/skills/`; on claude.ai, upload it as a skill.
+
 ## The two files
 
 WALL Pattern separates **structure** from **numbers**.
@@ -150,6 +154,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 ```
 index.html                       the renderer: self-contained, no build step
 CHANGELOG.md                     what changed in each version
+skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/
   wall.config.schema.json        structure of a wall
   wall.feed.schema.json          one live snapshot
