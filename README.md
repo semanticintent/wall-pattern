@@ -175,11 +175,11 @@ All company, customer, product and carrier names in the examples are fictional.
 
 ## Origin
 
-WALL Pattern comes from years of building tiered business systems on .NET, where the same shape kept coming back: structured input goes in, structured output comes out, admin screens are rendered from a declared structure rather than built by hand one at a time, and a cache layer holds the last known state in between.
+WALL Pattern comes from the same shape as [.netTiers](https://github.com/netTiers/netTiers), the schema-driven code generation framework for .NET (founding contributor, 2005–2010): structured input goes in, generated output comes out, a full admin UI is rendered from the declared structure rather than built by hand one screen at a time, and a cache layer holds the last known state in between.
 
 The wall is that shape pointed at a screen on the wall:
 
-| Tiered system | WALL Pattern |
+| .netTiers | WALL Pattern |
 |---|---|
 | Declared structure the admin UI renders from | `wall.config.json` |
 | Structured output from the business tier | `wall.feed.json` |
