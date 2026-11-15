@@ -1,0 +1,9 @@
+{
+  "title": "WALL Pattern: Workflow At-a-glance, Live & Legible — a process wall format and renderer",
+  "description": "Most dashboards answer how a process is doing; people who run a process ask where work is stuck and what changed. WALL Pattern is an open pattern, format and renderer for that second question, in the spirit of an andon board: grey is normal, and colour appears only where a step needs attention. A wall is two JSON files. wall.config.json declares the structure (steps, hero indicators and thresholds, connectors, return loops, exceptions, display) and changes rarely; wall.feed.json reports only what is true now (values, flows, oldest-item ages, open exceptions). The feed carries no deltas: the renderer, a single self-contained HTML file with no build step, keeps the previous snapshot and the start-of-shift baseline and computes what changed. Both files are specified as JSON Schema 2020-12. This is version 0.1: a working renderer (row and orbit layouts, deltas coloured by meaning, stall rules, exceptions, change log, kiosk mode, URL parameters, drop-in and watched feed files) and a schema-validated contract, with fictional examples and one real wall run on a case-review cycle. Known gaps are listed in the README. No research claim is made.",
+  "creators": [{ "name": "Shatny, Michael", "affiliation": "Semantic Intent", "orcid": "0009-0006-2011-3258" }],
+  "keywords": ["process-visualization", "operations-dashboard", "visual-management", "andon", "json-schema", "wall-display", "kiosk", "semantic-intent"],
+  "license": "MIT",
+  "version": "0.1.0",
+  "upload_type": "software"
+}

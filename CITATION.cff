@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use or reference this work, please cite it as below."
+title: "WALL Pattern: Workflow At-a-glance, Live & Legible — a process wall format and renderer"
+abstract: >
+  An open pattern, format and renderer for process walls that answer where work is
+  stuck and what changed, in the spirit of an andon board: grey is normal, and colour
+  appears only where a step needs attention. A wall is two JSON files, a config that
+  declares the structure and a feed that reports only what is true now; the renderer,
+  a single self-contained HTML file, keeps the previous snapshot and computes the
+  deltas. Both files are specified as JSON Schema 2020-12. Version 0.1: a working
+  renderer and a schema-validated contract, with fictional examples and one real wall
+  run on a case-review cycle. No research claim is made.
+authors:
+  - family-names: "Shatny"
+    given-names: "Michael"
+    orcid: "https://orcid.org/0009-0006-2011-3258"
+    affiliation: "Semantic Intent"
+version: 0.1.0
+date-released: 2026-11-15
+license: MIT
+repository-code: "https://github.com/semanticintent/wall-pattern"
+url: "https://semanticintent.github.io/wall-pattern/"
+keywords:
+  - process-visualization
+  - operations-dashboard
+  - visual-management
+  - andon
+  - json-schema
+  - wall-display
+  - kiosk
+  - semantic-intent
