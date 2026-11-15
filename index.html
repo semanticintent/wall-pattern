@@ -116,6 +116,7 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 .flow .cnt.fresh{display:inline-block;animation:fade var(--fade) ease-out forwards}
 .flow .cap{font-size:12px;color:var(--muted)}
 .flow.stall .cnt,.flow.stall .cap{color:#F6D27A;font-weight:600}
+.flow .sw{margin-top:2px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1408;background:#F2C14E}
 .flow.loop .cap{max-width:260px}
 .flow.loop .ln{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--loop);text-transform:uppercase}
 /* hub */
@@ -135,7 +136,9 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 .ex-tile .nm{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .ex-tile .ct{display:flex;align-items:center;gap:10px}
 .ex-tile .ct b{font-family:var(--f-head);font-size:40px;line-height:46px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--strong)}
-.ex-tile .lt{font-size:13px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-tile .lts{display:flex;flex-direction:column;min-width:0}
+.ex-tile .lt{font-size:13px;line-height:18px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-tile .lt.more{color:var(--faint)}
 .where{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .where span.s{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:999px;background:var(--surface2);font-size:13px;color:var(--soft)}
 .where span.s b{color:var(--strong)}
@@ -309,7 +312,8 @@ function normalise(c) {
   c = clone(c);
   c.display = c.display || {};
   c.display.refresh = Object.assign({ mode: 'live', intervalMinutes: 5, options: [5, 10, 20] }, c.display.refresh || {});
-  c.display.delta = Object.assign({ baseline: 'lastUpdate', shiftStart: '07:00', fadeSeconds: 14 }, c.display.delta || {});
+  c.display.delta = Object.assign({ baseline: 'lastUpdate', window: 'shift', shiftStart: '07:00', weekStart: 'monday', fadeSeconds: 14 }, c.display.delta || {});
+  if (['shift', 'day', 'week'].indexOf(c.display.delta.window) < 0) c.display.delta.window = 'shift';
   c.display.motion = Object.assign({ pulseOnChange: true, flowDots: true, respectReducedMotion: true }, c.display.motion || {});
   c.display.canvas = Object.assign({ width: 1920, height: 1080 }, c.display.canvas || {});
   c.states = (c.states && c.states.length >= 2) ? c.states : DEFAULT_STATES;
@@ -359,6 +363,32 @@ function applyConfig(cfg, opts) {
   return true;
 }
 
+/* ---------- delta window: when the 'since' baseline resets ---------- */
+const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+function windowStart(now) {
+  const d = S.config.display.delta, t = new Date(now);
+  t.setSeconds(0, 0);
+  if (d.window === 'day') { t.setHours(0, 0, 0, 0); return t; }
+  if (d.window === 'week') {
+    t.setHours(0, 0, 0, 0);
+    const ws = Math.max(0, WEEKDAYS.indexOf(String(d.weekStart || 'monday').toLowerCase()));
+    t.setDate(t.getDate() - ((t.getDay() - ws + 7) % 7));
+    return t;
+  }
+  const sh = String(d.shiftStart || '07:00').split(':');
+  t.setHours(+sh[0] || 0, +sh[1] || 0, 0, 0);
+  if (t > now) t.setDate(t.getDate() - 1);
+  return t;
+}
+function windowLabel() {
+  const d = S.config.display.delta;
+  return d.window === 'day' ? 'Today' : d.window === 'week' ? 'This week' : 'Shift ' + (d.shiftStart || '07:00');
+}
+function windowSince() {
+  const d = S.config.display.delta;
+  return d.window === 'day' ? 'since midnight' : d.window === 'week' ? 'since the week began' : 'since shift start';
+}
+
 /* ---------- feed ingestion ---------- */
 function ingest(feed, why) {
   const errs = checkFeed(feed);
@@ -369,7 +399,7 @@ function ingest(feed, why) {
   S.error = null;
   (feed.exceptions || []).forEach((e) => { if (!S.exPool.some((p) => p.text === e.text)) S.exPool.push({ type: e.type, step: e.step, text: e.text }); });
   if (feed.baseline && feed.baseline.values) S.base = feed.baseline;
-  else if (!S.base) S.base = { at: feed.generatedAt, values: clone(feed.values) };
+  else if (!S.base || new Date(S.base.at) < windowStart(feedTime(feed))) S.base = { at: feed.generatedAt, values: clone(feed.values) };
   if (S.prev) addLog(S.prev, feed);
   else (feed.messages || []).forEach((m) => pushLog(feed, m.text, null, m.tone || 'neutral'));
   render(true);
@@ -495,7 +525,7 @@ function renderHeader() {
   const opts = c.display.refresh.options || [5, 10, 20];
   const refreshItems = [{ act: 'refresh', v: 'live', label: 'Live', on: S.refresh.mode === 'live' }].concat(
     opts.map((m) => ({ act: 'refresh', v: String(m), label: m + ' min', on: S.refresh.mode === 'interval' && S.refresh.minutes === m })));
-  const shiftLbl = 'Shift ' + (c.display.delta.shiftStart || '07:00');
+  const shiftLbl = windowLabel();
   const deltaItems = [{ act: 'delta', v: 'lastUpdate', label: 'Last update', on: S.deltaMode === 'lastUpdate' }, { act: 'delta', v: 'shiftStart', label: shiftLbl, on: S.deltaMode === 'shiftStart' }];
   const layoutItems = [{ act: 'layout', v: 'row', label: 'Row', on: S.layout === 'row' }, { act: 'layout', v: 'orbit', label: 'Orbit', on: S.layout === 'orbit' }];
   const pinItems = [{ act: 'pin', v: '0', label: 'Arrange', on: !S.pinned }, { act: 'pin', v: '1', label: 'Pinned', on: S.pinned }];
@@ -561,7 +591,7 @@ function geometry() {
   // ring closer
   if (orbit && ids.length > 2) {
     const a = ids[ids.length - 1], b = ids[0];
-    if (!c.connectors.some((k) => k.from === a && k.to === b)) svg += '<path d="' + quad(P[a], P[b], hub, 90).d + '" style="stroke:var(--line);stroke-width:2;stroke-dasharray:2 8"></path>';
+    if (!c.connectors.some((k) => (k.from === a && k.to === b) || (k.to === b && k.route === 'outside'))) svg += '<path d="' + quad(P[a], P[b], hub, 90).d + '" style="stroke:var(--line);stroke-width:2;stroke-dasharray:2 8"></path>';
   }
   const paths = {};
   let laneIdx = 0;
@@ -739,12 +769,19 @@ function renderFlows() {
     const loop = c.loops.find((l) => l.id === k.loop);
     const off = g.outside ? 26 : 42;
     const lx = g.x + g.nx * off, ly = g.y + g.ny * off;
-    const cnt = '<span class="cnt' + (n ? '' : ' zero') + (last ? ' fresh' : '') + '">+' + n.toLocaleString('en-US') + (S.deltaMode === 'lastUpdate' && fl.sinceShiftStart != null ? ' · ' + fl.sinceShiftStart.toLocaleString('en-US') : '') + '</span>';
+    const fh = stall ? 62 : 44;
+    // Grey is normal: a moved count shows +n (and the window total); a quiet one shows only the total, muted; nothing at all shows nothing.
+    const total = fl.sinceShiftStart != null ? fl.sinceShiftStart : null;
+    let txt = '', quiet = true;
+    if (S.deltaMode === 'shiftStart') { if (n) { txt = '+' + n.toLocaleString('en-US'); quiet = false; } }
+    else if (last) { txt = '+' + last.toLocaleString('en-US') + (total != null ? ' · ' + total.toLocaleString('en-US') : ''); quiet = false; }
+    else if (total) txt = total.toLocaleString('en-US');
+    const cnt = '<span class="cnt' + (quiet ? ' zero' : '') + (last ? ' fresh' : '') + '">' + (txt || '&nbsp;') + '</span>';
     if (g.outside) {
       const ltop = Math.min(S.H - 90, g.low.y + 6), lleft = Math.max(16, Math.min(S.W - 356, g.low.x - 170));
       html += '<div class="flow loop" style="left:' + R(lleft) + 'px;top:' + R(ltop) + 'px;width:340px;height:40px"><span class="ln">' + esc(loop ? loop.name : 'Return loop') + '</span><span style="display:flex;gap:6px;align-items:baseline">' + cnt + '<span class="cap">' + esc(k.caption || '') + '</span></span></div>';
     } else {
-      html += '<div class="flow' + (stall ? ' stall' : '') + '" style="left:' + R(lx - 70) + 'px;top:' + R(ly - 22) + 'px;width:140px;height:44px">' + cnt + '<span class="cap">' + esc(k.caption || '') + (stall ? ' · ' + esc(k.stallCaption || 'slow') : '') + '</span></div>';
+      html += '<div class="flow' + (stall ? ' stall' : '') + '" style="left:' + R(lx - 70) + 'px;top:' + R(ly - fh / 2) + 'px;width:140px;height:' + fh + 'px">' + cnt + '<span class="cap">' + esc(k.caption || '') + '</span>' + (stall ? '<span class="sw">' + esc(k.stallCaption || 'slow') + '</span>' : '') + '</div>';
     }
   });
   $('#flows').innerHTML = html;
@@ -819,8 +856,10 @@ function renderPanels() {
     const tiles = types.map((t) => {
       const n = counts[t.id] || 0;
       const d = S.prev ? n - (pc[t.id] || 0) : 0;
-      const latest = ex.find((e) => e.type === t.id);
-      return '<div class="ex-tile' + (d ? ' flash' : '') + '"><span class="nm">' + esc(t.label) + '</span><div class="ct"><b>' + n + '</b>' + (d ? '<span class="delta big fresh ' + toneOf(d, 'down') + '">' + (d > 0 ? '↑' : '↓') + Math.abs(d) + '</span>' : '') + '</div><span class="lt">' + (latest ? 'Latest: ' + esc(latest.text) : 'None open') + '</span></div>';
+      const mine = ex.filter((e) => e.type === t.id);
+      const shown = mine.length > 3 ? mine.slice(0, 2) : mine.slice(0, 3);
+      const list = mine.length ? shown.map((e) => '<span class="lt">' + esc(e.text) + '</span>').join('') + (mine.length > shown.length ? '<span class="lt more">+' + (mine.length - shown.length) + ' more</span>' : '') : '<span class="lt">None open</span>';
+      return '<div class="ex-tile' + (d ? ' flash' : '') + '"><span class="nm">' + esc(t.label) + '</span><div class="ct"><b>' + n + '</b>' + (d ? '<span class="delta big fresh ' + toneOf(d, 'down') + '">' + (d > 0 ? '↑' : '↓') + Math.abs(d) + '</span>' : '') + '</div><div class="lts">' + list + '</div></div>';
     }).join('');
     const where = c.steps.map((s) => '<span class="s">' + esc(s.name) + '<b>' + ex.filter((e) => e.step === s.id).length + '</b></span>').join('');
     html += '<div class="panel" style="left:64px;top:' + top + 'px;width:' + exW + 'px;height:' + h + 'px;padding:24px;gap:16px;' + frameStyle(lvl) + '">' +
@@ -831,7 +870,7 @@ function renderPanels() {
   }
   if (c.changeLog.enabled) {
     html += '<div class="panel" style="left:' + (S.W - 64 - logW) + 'px;top:' + top + 'px;width:' + logW + 'px;height:' + h + 'px;padding:24px;gap:12px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="p-title">What changed</span><span class="p-sub">Newest first · blocks show Δ ' + (S.deltaMode === 'shiftStart' ? 'since shift start' : 'since last update') + '</span></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="p-title">What changed</span><span class="p-sub">Newest first · blocks show Δ ' + (S.deltaMode === 'shiftStart' ? windowSince() : 'since last update') + '</span></div>' +
       '<div class="log">' + logHTML(6) + '</div></div>';
   }
   el.innerHTML = html;
@@ -1023,8 +1062,7 @@ function synthFeed(c) {
     const s = c.steps[i % c.steps.length], t = types[i % types.length];
     exceptions.push({ id: 'DEMO-' + (S.idSeq++), type: t.id, step: s.id, text: t.label + ' issue at ' + s.name });
   }
-  const sh = (c.display.delta.shiftStart || '07:00').split(':');
-  const at = new Date(); at.setHours(+sh[0], +sh[1], 0, 0);
+  const at = windowStart(new Date());
   return { schemaVersion: '1.0', wallId: c.id, generatedAt: new Date().toISOString(), sequence: 1, values: values, baseline: { at: at.toISOString(), values: base }, ages: ages, flows: flows, exceptions: exceptions };
 }
 function simulate(f) {

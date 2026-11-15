@@ -52,7 +52,7 @@ WALL Pattern separates **structure** from **numbers**.
 | `wall.config.json` | rarely | steps, indicators, thresholds, connectors, loops, exceptions, display |
 | `wall.feed.json` | every update | current values, flows, ages of oldest items, open exceptions |
 
-The feed carries **no deltas**. The wall computes them by comparing each snapshot with the previous one, or with the shift baseline. A source system only has to report what is true *now*.
+The feed carries **no deltas**. The wall computes them by comparing each snapshot with the previous one, or with the start of the current window: a shift, a day or a week (`display.delta.window`). A source system only has to report what is true *now*.
 
 Schemas: [`schema/wall.config.schema.json`](schema/wall.config.schema.json) · [`schema/wall.feed.schema.json`](schema/wall.feed.schema.json) (JSON Schema 2020-12)
 
@@ -100,9 +100,9 @@ Each step is the same reusable unit:
 
 - Readable from four metres: big numbers, few words.
 - Grey is normal; colour means "look here".
-- Draw the flow: connectors carry counts and turn amber when a handoff stalls (`stallWhen`).
+- Draw the flow: connectors carry counts and turn amber when a handoff stalls (`stallWhen`). A connector where nothing moved stays quiet: only its total, muted, or only its caption.
 - Show it's alive: a heartbeat and an "updated" time. A missing feed shows **Stale** (`staleAfterMinutes`).
-- Fix the Δ baseline: since the last update, or since shift start.
+- Fix the Δ baseline: since the last update, or since the start of the shift, day or week (`delta.window`, with `shiftStart` or `weekStart`).
 - Gentle motion: one pulse per change, and reduced-motion settings are respected.
 
 ## Layouts
@@ -149,6 +149,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 
 ```
 index.html                       the renderer: self-contained, no build step
+CHANGELOG.md                     what changed in each version
 schema/
   wall.config.schema.json        structure of a wall
   wall.feed.schema.json          one live snapshot
@@ -174,6 +175,7 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | `step.drillUrl` | in the schema; not wired to clicks yet |
 | Custom `states` beyond three | labels and colours work; thresholds only define `watch` and `act` |
 | Watch a local feed file (re-read on each refresh, no server) | working in Chrome and Edge; other browsers fall back to drop-in files |
+| Delta window: `shift`, `day` or `week` (v0.2) | working; without a feed baseline, the wall resets its own on the first snapshot of each new window |
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.
@@ -192,7 +194,7 @@ The wall is that shape pointed at a screen on the wall:
 |---|---|
 | Declared structure the admin UI renders from | `wall.config.json` |
 | Structured output from the business tier | `wall.feed.json` |
-| Cache layer holding the last known state | the renderer's previous snapshot and shift baseline, which is where the deltas come from |
+| Cache layer holding the last known state | the renderer's previous snapshot and window baseline, which is where the deltas come from |
 | Rendered UI | `index.html` |
 
 Rebuilt in 2026 as an open pattern, format and renderer, with Claude.

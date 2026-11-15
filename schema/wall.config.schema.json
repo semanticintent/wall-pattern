@@ -40,8 +40,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "baseline": { "enum": ["lastUpdate", "shiftStart"], "default": "lastUpdate" },
-            "shiftStart": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$", "default": "07:00", "description": "Local time the shift baseline resets." },
+            "baseline": { "enum": ["lastUpdate", "shiftStart"], "default": "lastUpdate", "description": "Which delta shows first: since the last update, or since the start of the current window (shiftStart keeps its v0.1 name)." },
+            "window": { "enum": ["shift", "day", "week"], "default": "shift", "description": "How long a 'since' period lasts before the baseline resets: a shift (from shiftStart), a day (from local midnight) or a week (from weekStart). The toggle reads 'Shift 07:00', 'Today' or 'This week'." },
+            "shiftStart": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$", "default": "07:00", "description": "Local time the shift starts. Used when window is 'shift'." },
+            "weekStart": { "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"], "default": "monday", "description": "Day the week starts. Used when window is 'week'." },
             "fadeSeconds": { "type": "number", "minimum": 0, "default": 14 }
           }
         },

@@ -21,7 +21,7 @@
 
     "baseline": {
       "type": "object",
-      "description": "Optional. Values at shift start, so 'Δ since shift start' survives a wall restart. If missing, the wall uses the first snapshot it saw after shiftStart.",
+      "description": "Optional. Values at the start of the current window (shift, day or week), so 'since' deltas survive a wall restart. If missing, the wall uses the first snapshot it sees in each new window.",
       "required": ["at", "values"],
       "additionalProperties": false,
       "properties": {
@@ -49,7 +49,7 @@
         "additionalProperties": false,
         "properties": {
           "sinceLastUpdate": { "type": "integer", "minimum": 0 },
-          "sinceShiftStart": { "type": "integer", "minimum": 0 }
+          "sinceShiftStart": { "type": "integer", "minimum": 0, "description": "Moved since the start of the current window (shift, day or week). Name kept from v0.1." }
         }
       }
     },
