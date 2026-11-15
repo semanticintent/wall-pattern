@@ -18,6 +18,7 @@ authors:
 version: 0.1.0
 date-released: 2026-11-15
 license: MIT
+doi: "10.5281/zenodo.24244635"
 repository-code: "https://github.com/semanticintent/wall-pattern"
 url: "https://semanticintent.github.io/wall-pattern/"
 keywords:

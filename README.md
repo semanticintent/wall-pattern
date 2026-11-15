@@ -7,7 +7,7 @@
 **A process wall you can read from across the room.**
 One HTML file, one config, one feed. Any process becomes a live wall of connected steps: what is calm, what needs eyes, and what changed since you last looked.
 
-`PATTERN · FORMAT · RENDERER` · MIT · 2026 · [Semantic Intent](https://semanticintent.dev)
+`PATTERN · FORMAT · RENDERER` · MIT · 2026 · [Semantic Intent](https://semanticintent.dev) · [DOI 10.5281/zenodo.24244635](https://doi.org/10.5281/zenodo.24244635)
 
 ---
 
