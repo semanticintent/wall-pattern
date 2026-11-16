@@ -28,7 +28,7 @@ WALL Pattern answers that second question, as an open pattern:
 
 ## Quick start
 
-**Live demo:** [semanticintent.github.io/wall-pattern](https://semanticintent.github.io/wall-pattern/) · [as a wall screen](https://semanticintent.github.io/wall-pattern/?kiosk=1) (press **K** for controls)
+**Live demo:** [semanticintent.github.io/wall-pattern](https://semanticintent.github.io/wall-pattern/) · [as a wall screen](https://semanticintent.github.io/wall-pattern/#kiosk=1) (press **K** for controls)
 
 Or locally:
 
@@ -129,7 +129,7 @@ Each step is the same reusable unit ([as a page](https://semanticintent.github.i
 ## Wall-screen links
 
 ```
-index.html?config=CONFIG_URL&feed=FEED_URL&layout=orbit&pin=1&kiosk=1
+index.html#config=CONFIG_URL&feed=FEED_URL&layout=orbit&pin=1&kiosk=1
 ```
 
 | Param | Effect |
@@ -150,7 +150,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 |---|---|---|
 | **Same server** | Serve `index.html` next to `wall-feed.json` | Simplest for a wall screen. No cross-site issues. |
 | **Shared folder** | The system writes `wall-feed.json` on a schedule; a static web server shares the folder | No API work at all. Good fit for older systems. |
-| **Feed API** | Point `?feed=` at an endpoint returning the feed JSON | If the HTML is hosted elsewhere, or opened from a local drive, the endpoint must send a CORS header (`Access-Control-Allow-Origin`). |
+| **Feed API** | Point `#feed=` at an endpoint returning the feed JSON | If the HTML is hosted elsewhere, or opened from a local drive, the endpoint must send a CORS header (`Access-Control-Allow-Origin`). |
 | **Watch a local file** | **Source & settings → Pick a feed file to watch**. The business system overwrites `wall-feed.json` on a schedule (for example in a shared folder) | No server, no CORS. The wall re-reads the file on every refresh (Live = every 5 s) and only updates when it changed. Nothing is uploaded. Remembered across reloads: click **Resume watching**. Chrome and Edge only (File System Access API). |
 | **Files by hand** | Drop snapshots onto the page | Any browser. Drop two in a row to see what changed. |
 

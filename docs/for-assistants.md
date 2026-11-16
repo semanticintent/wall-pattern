@@ -241,7 +241,7 @@ Write the same kind of converter as a scheduled script in the person's language,
 
 - **No server (most spreadsheet setups):** the converter writes `wall.feed.json` into a folder. On the wall screen, in Chrome or Edge, use **Source & settings → Pick a feed file to watch** and choose that file. The page re-reads it and updates when it changes. After a browser restart, one click resumes watching.
 - **Synced folders** (OneDrive, Google Drive, a mapped network drive) work, if the file is a real local file. Set "always keep on this device" for that folder, or the browser may read a placeholder.
-- **Served from a web server:** open `index.html?config=<url>&feed=<url>&kiosk=1`. The page checks the feed every 10 seconds.
+- **Served from a web server:** open `index.html#config=<url>&feed=<url>&kiosk=1`. The page checks the feed every 10 seconds. Use `#` rather than `?`, so a key in the feed URL never reaches the server that hosts the page.
 - **How fresh the wall is depends on the export.** If the spreadsheet is saved hourly, the wall changes hourly.
 
 ## Worked example: a repair desk fed from a spreadsheet

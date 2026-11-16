@@ -6,7 +6,7 @@
 
 | Mode | Source | Updates | Who can see it |
 |---|---|---|---|
-| **Live** | a URL (`?feed=`) | every refresh | whoever can reach the URL; see below |
+| **Live** | a URL (`#feed=`) | every refresh | whoever can reach the URL; see below |
 | **Watched file** | a local or synced file | when the file changes | the file system's own permissions |
 | **Offline wall** | embedded in one HTML file | never: a frozen moment | whoever holds the file |
 
@@ -45,9 +45,13 @@ The key can be short-lived (minutes, a day) for sharing one wall once, or **stan
 | The address bar on a wall screen, in screenshots or screen shares | Real: walls are on screens people photograph | Kiosk / full-screen mode hides the bar |
 | Copy-paste into chat or email | Real, and by design: that's how the link is shared | Treat sharing the link as sharing the feed |
 | Server and proxy logs (query strings are logged; corporate proxies that inspect traffic log full URLs) | Moderate: the feed server's own logs are usually fine; third-party logs are not | Rotation and revocation |
-| `Referer` sent to other sites | Low today: browsers send only the origin to other sites by default, and the renderer has no outgoing links | Add `<meta name="referrer" content="no-referrer">` to the renderer anyway; it costs nothing |
+| `Referer` sent to other sites | Low: the renderer has no outgoing links | **Works today:** the renderer sets `<meta name="referrer" content="no-referrer">` |
 
-**One cheap improvement:** let the renderer take the feed URL from the **fragment**, `index.html#feed=…`, as well as from the query. The part after `#` is never sent to the server that hosts the page and never appears in `Referer`. The key still travels to the feed server, which owns it anyway. This removes the page host's logs from the list above. It doesn't help with history, screens or copy-paste.
+**Works today: parameters in the fragment.** Use `index.html#config=…&feed=…`. The part after `#` is never sent to the server that hosts the page and never appears in `Referer`. The key still travels to the feed server, which owns it anyway. This removes the page host's logs from the list above. It doesn't help with history, screens or copy-paste.
+
+- Older `?config=…&feed=…` links still work. The page moves those parameters into the fragment in the address bar, so a link copied from it is the safer form. The original request has already reached the page's server by then, so its logs still hold that one.
+- Error messages and the status label show a feed URL without its query or fragment, so a key never appears on the wall's screen.
+- Editing the fragment by hand reloads the wall with the new parameters.
 
 ### CORS: what it is for
 
@@ -79,7 +83,7 @@ Opened anywhere, with no network, it shows the wall as it was at that moment.
 **What it would take in the renderer:**
 
 - A **Save as offline wall** action that writes a copy of the page with the config and the snapshots in `<script type="application/json">` tags.
-- On load, read those tags if they are present, and ignore `?feed=` and the watched file.
+- On load, read those tags if they are present, and ignore `#feed=` and the watched file.
 - The same validation as any other feed. An offline wall is checked like a fetched one.
 
 **Its limit:** whoever holds the file can read everything in it, forever. It has no revocation. Only summary-level content belongs in it, which is already the rule for feeds.
@@ -88,4 +92,3 @@ Opened anywhere, with no network, it shows the wall as it was at that moment.
 
 - Should an offline wall carry a fixed number of snapshots, or everything since the start of the current window?
 - Should a standing capability URL be built into a reference exporter, or left to each server?
-- Is reading the feed URL from the fragment worth a second way to pass parameters, or does it just confuse people?

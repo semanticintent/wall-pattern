@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Parameters in the fragment.** `index.html#config=…&feed=…&kiosk=1` is now the documented form. The part after `#` never reaches the server that hosts the page, so a key in a feed URL stays out of its logs. Older `?…` links still work and are moved into the fragment in the address bar. Editing the fragment reloads the wall.
+- **Keys never appear on screen.** Error messages and the status label show a feed URL without its query or fragment.
+- **`Referrer-Policy: no-referrer`** via a meta tag.
+- **Design note:** `docs/sharing-and-offline.md` (reaching a feed, capability URLs, CORS, offline walls).
+
 ## 0.2.3 — 2026-11-15
 
 For people who don't write code, or who use a chat assistant other than Claude. The renderer and schemas are unchanged.

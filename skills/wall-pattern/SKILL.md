@@ -78,7 +78,7 @@ Rules that are easy to get wrong:
 
 ## 5. Serving it
 
-- Simplest: serve `index.html`, the config and the feed from one place and open `index.html?config=<url>&feed=<url>&kiosk=1` on the screen. The page polls the feed every 10 s in Live mode.
+- Simplest: serve `index.html`, the config and the feed from one place and open `index.html#config=<url>&feed=<url>&kiosk=1` on the screen. The page polls the feed every 10 s in Live mode. Use `#`, not `?`: the part after `#` never reaches the server hosting the page, which matters when the feed URL carries a key.
 - A feed on another origin needs `Access-Control-Allow-Origin`.
 - No server: the exporter writes `wall.feed.json` to a folder, and the wall watches the file (**Source & settings → Pick a feed file to watch**, Chrome and Edge).
 - Older systems: a scheduled export to a shared folder is enough. No API work.

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>WALL Pattern</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round' role='img' aria-label='WALL Pattern' stroke='%23d97706' color='%23d97706'><path d='M2.5 5h19M2.5 12h19M2.5 19h19'/><path d='M8.5 5v7M15.5 5v7M5 12v7M12 12v7M19 12v7'/><circle cx='12' cy='8.5' r='1.6' fill='currentColor' stroke='none'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,7 +210,18 @@ const clone = (o) => JSON.parse(JSON.stringify(o));
 const R = Math.round;
 const stage = $('#stage');
 const drawer = $('#drawer');
+// Parameters are read from the fragment (#config=…&feed=…) and, for older links, the query (?…).
+// The fragment is never sent to the server that hosts this page, so a feed URL carrying a key
+// stays out of that server's logs. Fragment values win. Query parameters are moved into the
+// fragment in the address bar, so a link copied from it is the safer form.
 const params = new URLSearchParams(location.search);
+new URLSearchParams(location.hash.slice(1)).forEach((v, k) => params.set(k, v));
+if (location.search && history.replaceState) {
+  try { history.replaceState(null, '', location.pathname + (params.toString() ? '#' + params.toString() : '')); } catch (e) { /* file:// or sandboxed: leave it */ }
+}
+window.addEventListener('hashchange', () => location.reload());
+// Show a URL without its query or fragment, so a key in it never appears on screen.
+const bareUrl = (u) => { try { const x = new URL(u, location.href); return x.origin + x.pathname; } catch (e) { return String(u).split(/[?#]/)[0]; } };
 
 const DEFAULT_STATES = [
   { id: 'calm', label: 'Calm', color: '#6E7C8C' },
@@ -575,7 +587,7 @@ function renderStatus() {
   if (!S.paused && S.source === 'file') { state = 'off'; label = 'Snapshot'; }
   if (S.error) { state = 'err'; label = 'Feed error'; }
   if (!S.feed) { state = 'off'; label = 'Waiting for feed'; }
-  const src = S.source === 'demo' ? 'Demo data' : S.source === 'url' ? 'Feed: ' + (S.feedUrl.replace(/^https?:\/\//, '').slice(0, 28)) : S.source === 'watch' && S.fileHandle ? 'Watching: ' + S.fileHandle.name : 'File';
+  const src = S.source === 'demo' ? 'Demo data' : S.source === 'url' ? 'Feed: ' + (bareUrl(S.feedUrl).replace(/^https?:\/\//, '').slice(0, 28)) : S.source === 'watch' && S.fileHandle ? 'Watching: ' + S.fileHandle.name : 'File';
   el.innerHTML = '<span class="beat ' + (state === 'live' ? '' : state) + '"></span><b>' + esc(label) + '</b>' +
     (S.feed ? '<span class="t">updated ' + hhmmss(feedTime(S.feed)) + '</span>' : '') + '<span class="src">' + esc(src) + '</span>';
 }
@@ -1058,7 +1070,7 @@ function fetchFeed() {
     .then((j) => ingest(j, 'url'))
     .catch((err) => { S.error = String(err.message || err); renderStatus(); toast('Could not read the feed: ' + S.error + '. If it is on another site, it must allow cross-origin (CORS) requests.', true); });
 }
-function fetchJSON(url) { return fetch(url, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url); return r.json(); }); }
+function fetchJSON(url) { return fetch(url, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + bareUrl(url)); return r.json(); }); }
 
 /* ---------- demo simulator ---------- */
 function synthFeed(c) {
@@ -1222,7 +1234,7 @@ function openDrawer(on) {
   if (on) { const f = $('button', drawer); if (f) f.focus(); }
 }
 function renderDrawer() {
-  const here = location.href.split('?')[0];
+  const here = location.href.split(/[?#]/)[0];
   drawer.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center"><h2>Source &amp; settings</h2><button class="btn" data-d="close">Close</button></div>' +
     '<div class="sec"><h3>Live feed</h3><p>Point the wall at a URL that returns a feed JSON snapshot. It is fetched on the refresh interval (Live = every 10 s).</p>' +
@@ -1235,7 +1247,7 @@ function renderDrawer() {
     '<div class="row2"><span class="btn filebtn">Load config…<input type="file" accept=".json,application/json" data-d="cfgfile"></span><span class="btn filebtn">Load feed…<input type="file" accept=".json,application/json" data-d="feedfile"></span></div>' +
     '<div class="row2"><button class="btn" data-d="dlcfg">Download current config</button><button class="btn" data-d="dlfeed">Download current feed</button></div></div>' +
     '<div class="sec"><h3>Wall-screen link</h3><p>Open the wall with options in the address:</p>' +
-    '<p><code>' + esc(here) + '?config=CONFIG_URL&amp;feed=FEED_URL&amp;layout=orbit&amp;pin=1&amp;kiosk=1</code></p>' +
+    '<p><code>' + esc(here) + '#config=CONFIG_URL&amp;feed=FEED_URL&amp;layout=orbit&amp;pin=1&amp;kiosk=1</code></p>' +
     '<p>layout = row | orbit · pin=1 locks blocks · kiosk=1 hides the controls (press K to toggle) · F goes full screen.</p></div>' +
     '<div class="sec"><h3>Current wall</h3><p>' + esc(S.config.title) + ' · id <code>' + esc(S.config.id) + '</code> · ' + S.config.steps.length + ' steps · ' + S.config.connectors.length + ' connectors</p></div>';
 }
