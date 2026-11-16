@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.4 — 2026-11-16
+
+Safer links. The schemas are unchanged.
 
 - **Parameters in the fragment.** `index.html#config=…&feed=…&kiosk=1` is now the documented form. The part after `#` never reaches the server that hosts the page, so a key in a feed URL stays out of its logs. Older `?…` links still work and are moved into the fragment in the address bar. Editing the fragment reloads the wall.
 - **Keys never appear on screen.** Error messages and the status label show a feed URL without its query or fragment.
