@@ -167,6 +167,7 @@ anatomy.html                     the anatomy of a block, as a page
 CHANGELOG.md                     what changed in each version
 docs/for-assistants.md           one-file guide for any chat assistant (Copilot, ChatGPT, …)
 docs/adapters.md                 design note: adapters, spreadsheets, setup agent (proposed)
+docs/sharing-and-offline.md      design note: reaching a feed, capability URLs, CORS, offline walls (proposed)
 skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/
   wall.config.schema.json        structure of a wall
@@ -198,6 +199,7 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | Adapters: map an existing endpoint to a feed, in the browser or at the edge | proposed, not implemented; see [docs/adapters.md](docs/adapters.md) |
 | Spreadsheet input via a converter (a `wall` tab saved as CSV → feed) | working; see [examples/repair-desk/](examples/repair-desk/) and [docs/for-assistants.md](docs/for-assistants.md) |
 | CSV read directly by the renderer, and a setup agent for people without a coding workflow | proposed, not implemented; see [docs/adapters.md](docs/adapters.md#spreadsheets-without-writing-code) |
+| Offline wall (renderer, config and snapshots in one HTML file), capability-URL guidance | proposed, not implemented; see [docs/sharing-and-offline.md](docs/sharing-and-offline.md) |
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.
