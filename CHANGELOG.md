@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.6 — 2026-11-16
+
+A readable light theme. The schemas are unchanged.
 
 - **Light theme is easier to read.** State chips darken their colour for text in the light theme instead of lightening it, so an amber Watch chip's text measures 5.1:1 against white instead of 1.4:1. The accent's eyebrow text is darkened the same way in light: a teal accent goes from about 2:1 to 5.1:1 (the band keeps the exact colour).
 - **`#theme=dark|light`** in a wall link overrides the config's theme, to check a wall in the other look without editing it.
