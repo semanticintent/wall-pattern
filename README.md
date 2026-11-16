@@ -26,6 +26,8 @@ WALL Pattern answers that second question, as an open pattern:
 - **Show change, not just state.** Every update pulses what moved and shows ↑↓ deltas, coloured by meaning.
 - **Arranged once, then fixed.** You can arrange the layout like a diagram, then pin it so the wall stays stable.
 
+How it relates to andon boards, kanban, wallboards and dashboards, and when to use one of those instead: [docs/comparison.md](docs/comparison.md).
+
 ## Quick start
 
 **Live demo:** [semanticintent.github.io/wall-pattern](https://semanticintent.github.io/wall-pattern/) · [as a wall screen](https://semanticintent.github.io/wall-pattern/#kiosk=1) (press **K** for controls)
@@ -170,6 +172,7 @@ The renderer only reads JSON, so the integration can be as light as a scheduled 
 index.html                       the renderer: self-contained, no build step
 anatomy.html                     the anatomy of a block, as a page
 CHANGELOG.md                     what changed in each version
+docs/comparison.md               how WALL compares with andon, kanban, wallboards and dashboards
 docs/for-assistants.md           one-file guide for any chat assistant (Copilot, ChatGPT, …)
 docs/adapters.md                 design note: adapters, spreadsheets, setup agent (proposed)
 docs/sharing-and-offline.md      design note: reaching a feed, capability URLs, CORS, offline walls (proposed)
