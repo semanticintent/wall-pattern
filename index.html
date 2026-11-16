@@ -35,7 +35,10 @@ button{font-family:var(--f-body)}
 .abs{position:absolute}
 /* header */
 .hdr-l{position:absolute;left:64px;top:40px;display:flex;flex-direction:column;gap:8px;z-index:20}
-.eyebrow{font-family:var(--f-mono);font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--better)}
+.eyebrow{font-family:var(--f-mono);font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--ident,var(--better))}
+/* per-wall accent (display.accent): identity only, never meaning */
+.band{display:none;position:absolute;left:0;right:0;top:0;height:6px;background:var(--ident);z-index:20}
+.has-accent .band{display:block}
 h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weight:600;letter-spacing:-.01em;color:var(--strong)}
 .hdr-r{position:absolute;right:64px;top:32px;display:flex;flex-direction:column;align-items:flex-end;gap:12px;z-index:20}
 .hrow{display:flex;align-items:center;gap:14px}
@@ -57,7 +60,7 @@ h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weigh
 .pill[aria-pressed="true"]{background:var(--text);color:var(--bg)}
 .kiosk .hdr-r .hide-k{display:none}
 .progress{position:absolute;left:64px;right:64px;top:146px;height:3px;border-radius:3px;background:var(--surface2);overflow:hidden;z-index:20}
-.progress i{display:block;height:3px;width:0;background:var(--accent)}
+.progress i{display:block;height:3px;width:0;background:var(--ident,var(--accent))}
 .looplabel{position:absolute;left:64px;top:162px;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--muted)}
 /* cards */
 .card{position:absolute;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;touch-action:none;user-select:none;transition:transform .12s,box-shadow .3s,border-color .3s}
@@ -353,6 +356,7 @@ function normalise(c) {
   });
   c.exceptions = Object.assign({ enabled: true, title: 'Exceptions', placement: 'panel', types: [], showOnSteps: true }, c.exceptions || {});
   c.exceptions.types.forEach((t) => { if (t.color != null && !HEX_RE.test(t.color)) delete t.color; });
+  if (c.display.accent != null && !HEX_RE.test(c.display.accent)) delete c.display.accent;
   c.changeLog = Object.assign({ enabled: true, maxItems: 6 }, c.changeLog || {});
   return c;
 }
@@ -376,6 +380,7 @@ function applyConfig(cfg, opts) {
   S.refresh = { mode: c.display.refresh.mode === 'interval' ? 'interval' : 'live', minutes: c.display.refresh.intervalMinutes || 5 };
   document.documentElement.style.setProperty('--fade', (c.display.delta.fadeSeconds || 14) + 's');
   document.body.classList.toggle('light', c.display.theme === 'light');
+  applyAccent(c.display.accent);
   document.body.classList.toggle('rm', c.display.motion.respectReducedMotion !== false);
   document.title = c.title + ' · WALL Pattern';
   const saved = recall('wallpattern:' + c.id);
@@ -386,6 +391,21 @@ function applyConfig(cfg, opts) {
   if (!opts.keepSource) S.error = null;
   buildStage();
   return true;
+}
+
+/* ---------- per-wall accent: tells walls apart, never carries meaning ---------- */
+function applyAccent(hex) {
+  document.body.classList.toggle('has-accent', !!hex);
+  if (hex) document.body.style.setProperty('--ident', hex); else document.body.style.removeProperty('--ident');
+  if (hex && looksLikeWarning(hex) && window.console) console.warn('WALL Pattern: the accent ' + hex + ' looks like a warning colour. Amber, orange and red mean Watch, Act and worse on every wall; a blue, teal, green or violet accent reads as identity.');
+}
+function looksLikeWarning(hex) {
+  const n = parseInt(hex.slice(1, 7), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  if (d < 0.25 || mx < 0.35) return false; // greys and dark colours carry no warning
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360;
+  return h < 55 || h >= 335; // reds, oranges, ambers
 }
 
 /* ---------- delta window: when the 'since' baseline resets ---------- */
@@ -528,6 +548,7 @@ function buildStage() {
   const c = S.config;
   const hasLoop2 = c.connectors.some((k) => k.route === 'outside');
   stage.innerHTML =
+    '<div class="band" aria-hidden="true"></div>' +
     '<svg id="lines" width="' + S.W + '" height="' + S.H + '" viewBox="0 0 ' + S.W + ' ' + S.H + '" aria-hidden="true"></svg>' +
     '<div id="chevs"></div><div id="flows"></div><div id="hubwrap"></div><div id="cards"></div>' +
     '<div class="hdr-l"><div class="eyebrow">' + esc(c.eyebrow || 'WALL PATTERN · PROCESS FLOW') + '</div><h1>' + esc(c.title) + '</h1></div>' +

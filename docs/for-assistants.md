@@ -84,6 +84,7 @@ Connect neighbouring steps only, except for returns.
 - `window` is `"shift"` (with `"shiftStart": "07:00"`), `"day"` or `"week"` (with `"weekStart": "monday"`).
 - Set `staleAfterMinutes` a little above how often the data updates, so a broken update shows as **Stale**.
 - Start with `"layout": "row"`.
+- If the person has more than one wall, add `"accent": "#2EC4B6"` (any blue, teal, green or violet) to `display` so the walls can be told apart. Never amber, orange or red: those mean Watch, Act and worse.
 
 ## Step 3: The shape of `wall.feed.json`
 

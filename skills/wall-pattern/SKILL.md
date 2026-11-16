@@ -39,6 +39,7 @@ Don't write JSON until you can answer these, in the user's words:
 - `stallWhen` turns a connector amber: `{ "step": "<next step id>", "stateAtLeast": "act" }` when the receiving step is in trouble, or `{ "flowBelow": 1 }` when nothing moved. Give it a one-word `stallCaption` ("short", "slow", "backing up").
 - Colours, if any, are hex (`#RRGGBB`). Anything else is ignored and the default colour is used.
 - Start with `"layout": "row"`. Orbit suits 4–6 steps where exceptions are the story.
+- **More than one wall?** Give each a `display.accent` (hex) so screens can be told apart. Use a blue, teal, green or violet: amber, orange and red already mean Watch, Act and worse on every wall.
 - **In Row, connect neighbouring steps only.** A connector between steps that aren't next to each other is drawn as a lane under the blocks, and its caption can end up behind the exceptions panel. Return loops (`route: "outside"`) are the exception.
 - **Up to 6 exception types.** More than that wraps the panel off the bottom of a 1920×1080 screen; merge types instead.
 

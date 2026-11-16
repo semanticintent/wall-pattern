@@ -126,6 +126,10 @@ Each step is the same reusable unit ([as a page](https://semanticintent.github.i
 | **Row** | Steps in a line. Return loops sweep underneath. Exceptions and "What changed" panels sit below. |
 | **Orbit** | Steps on a ring with **Exceptions as the hub**. Spokes show exceptions per step (thicker means more), and dots flow along curved connectors, faster with more volume. Drag to arrange, then **Pin**. The layout is saved per wall in the browser. |
 
+### Telling walls apart
+
+With more than one wall, give each its own accent: `"display": { "accent": "#2EC4B6" }`. It colours the eyebrow, a thin band along the top edge and the refresh line, so you can tell which wall a screen is showing from across a room. It never changes what colours *mean*: grey, amber and red are still Calm, Watch and Act, and blue and orange are still better and worse, on every wall. Pick a blue, teal, green or violet; avoid amber, orange and red. `display.theme` (`dark` or `light`) sets the overall look. More themes are a proposal: see [docs/themes.md](docs/themes.md).
+
 ## Wall-screen links
 
 ```
@@ -168,6 +172,7 @@ CHANGELOG.md                     what changed in each version
 docs/for-assistants.md           one-file guide for any chat assistant (Copilot, ChatGPT, …)
 docs/adapters.md                 design note: adapters, spreadsheets, setup agent (proposed)
 docs/sharing-and-offline.md      design note: reaching a feed, capability URLs, CORS, offline walls (proposed)
+docs/themes.md                   design note: themes, accents, colour-blind mode, rotation (accent built; rest proposed)
 skills/wall-pattern/SKILL.md     a skill: build a wall for your own process
 schema/
   wall.config.schema.json        structure of a wall
@@ -200,6 +205,8 @@ v0.1 is a working renderer and a schema-validated contract. Honest gaps:
 | Spreadsheet input via a converter (a `wall` tab saved as CSV → feed) | working; see [examples/repair-desk/](examples/repair-desk/) and [docs/for-assistants.md](docs/for-assistants.md) |
 | CSV read directly by the renderer, and a setup agent for people without a coding workflow | proposed, not implemented; see [docs/adapters.md](docs/adapters.md#spreadsheets-without-writing-code) |
 | Offline wall (renderer, config and snapshots in one HTML file), capability-URL guidance | proposed, not implemented; see [docs/sharing-and-offline.md](docs/sharing-and-offline.md) |
+| Per-wall accent (`display.accent`) | working |
+| More themes, theme files, viewer colour-blind mode, wall rotation | proposed, not implemented; see [docs/themes.md](docs/themes.md) |
 | Schema validation in the page | basic checks, plus id and colour patterns enforced before anything reaches the page; the schemas are the source of truth |
 
 All company, customer, product and carrier names in the examples are fictional.

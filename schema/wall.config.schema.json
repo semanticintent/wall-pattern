@@ -18,6 +18,7 @@
       "properties": {
         "layout": { "enum": ["row", "orbit", "free"], "default": "row", "description": "row = blocks in a line; orbit = ring with exceptions hub; free = positions taken from each step's position." },
         "theme": { "enum": ["dark", "light"], "default": "dark" },
+        "accent": { "$ref": "#/$defs/color", "description": "Per-wall identity colour: the eyebrow, a band along the top edge and the refresh line. Tells walls apart across a room; it never changes what the state and delta colours mean. Avoid amber, orange and red, which mean Watch, Act and worse." },
         "canvas": {
           "type": "object",
           "additionalProperties": false,

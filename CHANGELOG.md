@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Per-wall accent:** `display.accent` (hex) colours the eyebrow, a thin band along the top edge and the refresh line, so several walls can be told apart across a room. It never changes the meaning colours. An invalid value is ignored; an accent that looks like a warning colour logs a note in the browser console.
+- **Design note:** `docs/themes.md` (themes change the frame, never the meaning; built-in themes, theme files, a viewer-level colour-blind mode, wall rotation).
+
 ## 0.2.4 — 2026-11-16
 
 Safer links. The schemas are unchanged.
