@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.7 — 2026-11-16
+
+Documentation only. The renderer and schemas are unchanged.
+
+- **How WALL compares:** `docs/comparison.md` places WALL among andon boards, visual management, kanban, call-centre wallboards, operations-centre walls, information radiators and value stream maps: what it takes from each, six ways it differs, when to use something else, and who it is for.
+
 ## 0.2.6 — 2026-11-16
 
 A readable light theme. The schemas are unchanged.

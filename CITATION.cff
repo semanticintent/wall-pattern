@@ -15,7 +15,7 @@ authors:
     given-names: "Michael"
     orcid: "https://orcid.org/0009-0006-2011-3258"
     affiliation: "Semantic Intent"
-version: 0.2.6
+version: 0.2.7
 date-released: 2026-11-16
 license: MIT
 doi: "10.5281/zenodo.24244635"
