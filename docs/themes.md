@@ -32,10 +32,11 @@ and may not change the state colours or the better/worse colours. Those stay fix
 - It must be a hex colour. Anything else is ignored and the default look is used, so a config can't inject styles.
 - **Pick a blue, teal, green or violet.** Amber, orange and red already mean Watch, Act and worse. The renderer logs a note in the browser console when an accent falls in that range; it doesn't refuse it.
 - With no accent, a wall looks exactly as it did before.
+- In the light theme, the eyebrow uses a darkened mix of the accent so that small text stays readable (about 5:1 for a teal accent). The band keeps the exact colour, because a band doesn't need to be read.
 
 ## Layer 2: built-in themes (proposed)
 
-`display.theme` takes `dark` (default) or `light` today. Candidates to add:
+`display.theme` takes `dark` (default) or `light` today, and a link can override it with `#theme=light` to check a wall in the other look. Candidates to add:
 
 | Theme | For |
 |---|---|

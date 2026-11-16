@@ -141,6 +141,7 @@ index.html#config=CONFIG_URL&feed=FEED_URL&layout=orbit&pin=1&kiosk=1
 | `config` | load a config from a URL (falls back to the built-in example) |
 | `feed` | poll a feed URL: every 10 s in Live mode, or on the chosen interval |
 | `layout` | `row` or `orbit` |
+| `theme` | `dark` or `light`, overriding the config: handy for checking how a wall looks in the other theme |
 | `pin=1` | lock block positions |
 | `kiosk=1` | hide the controls (press **K** to toggle) |
 

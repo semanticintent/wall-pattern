@@ -39,6 +39,7 @@ button{font-family:var(--f-body)}
 /* per-wall accent (display.accent): identity only, never meaning */
 .band{display:none;position:absolute;left:0;right:0;top:0;height:6px;background:var(--ident);z-index:20}
 .has-accent .band{display:block}
+.light.has-accent .eyebrow{color:var(--ident);color:color-mix(in srgb,var(--ident) 55%,#0B121A)}
 h1{margin:0;font-family:var(--f-head);font-size:44px;line-height:52px;font-weight:600;letter-spacing:-.01em;color:var(--strong)}
 .hdr-r{position:absolute;right:64px;top:32px;display:flex;flex-direction:column;align-items:flex-end;gap:12px;z-index:20}
 .hrow{display:flex;align-items:center;gap:14px}
@@ -282,6 +283,12 @@ function hexA(hex, a) {
   const n = parseInt(h, 16);
   return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
 }
+function chipText(hex) { return document.body.classList.contains('light') ? darken(hex) : lighten(hex); }
+function darken(hex) {
+  const n = parseInt(hex.replace('#', '').slice(0, 6), 16);
+  const f = (c) => R(c * 0.55);
+  return 'rgb(' + f((n >> 16) & 255) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')';
+}
 function lighten(hex) {
   const h = hex.replace('#', '').slice(0, 6);
   const n = parseInt(h, 16);
@@ -379,7 +386,8 @@ function applyConfig(cfg, opts) {
   S.deltaMode = c.display.delta.baseline;
   S.refresh = { mode: c.display.refresh.mode === 'interval' ? 'interval' : 'live', minutes: c.display.refresh.intervalMinutes || 5 };
   document.documentElement.style.setProperty('--fade', (c.display.delta.fadeSeconds || 14) + 's');
-  document.body.classList.toggle('light', c.display.theme === 'light');
+  const theme = ['dark', 'light'].indexOf(params.get('theme')) >= 0 ? params.get('theme') : c.display.theme;
+  document.body.classList.toggle('light', theme === 'light');
   applyAccent(c.display.accent);
   document.body.classList.toggle('rm', c.display.motion.respectReducedMotion !== false);
   document.title = c.title + ' · WALL Pattern';
@@ -737,7 +745,7 @@ function deltaBadge(def, id, big) {
 function chipHTML(level, compact) {
   const st = S.config.states[level];
   const color = st.color;
-  return '<span class="chip' + (level >= 2 ? ' pulse' : '') + '" style="color:' + (level === 0 ? 'var(--soft)' : lighten(color)) + ';background:' + (level === 0 ? 'var(--surface2)' : hexA(color, 0.16)) + '"><i style="background:' + color + '"></i>' + esc(st.label) + '</span>';
+  return '<span class="chip' + (level >= 2 ? ' pulse' : '') + '" style="color:' + (level === 0 ? 'var(--soft)' : chipText(color)) + ';background:' + (level === 0 ? 'var(--surface2)' : hexA(color, 0.16)) + '"><i style="background:' + color + '"></i>' + esc(st.label) + '</span>';
 }
 function frameStyle(level) {
   if (level === 0) return 'border-color:var(--line);box-shadow:none';
