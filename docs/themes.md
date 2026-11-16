@@ -1,6 +1,6 @@
 # Themes — design note
 
-**Status:** the per-wall accent **works today** (v0.2.5 and later). Everything else here is **proposed, not implemented**. It records a direction so that it can be built, or rejected, on purpose.
+**Status:** the per-wall accent **works today** in the renderer on `main` (not yet in a release). Everything else here is **proposed, not implemented**. It records a direction so that it can be built, or rejected, on purpose.
 
 ## The rule: a theme changes the frame, never the meaning
 
